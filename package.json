@@ -1,6 +1,6 @@
 {
   "name": "vs-code-bpmn-flex",
-  "displayName": "BPMN.io Editor Flex",
+  "displayName": "BPMN.flex Editor",
   "description": "Edit BPMN 2.0 files, powered by bpmn.io tools. Add more custom features",
   "license": "MIT",
   "version": "0.0.1",

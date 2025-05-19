@@ -4,7 +4,7 @@
   "description": "Edit BPMN 2.0 files, powered by bpmn.io tools. Add more custom features",
   "license": "MIT",
   "version": "0.0.1",
-  "publisher": "giko-yo",
+  "publisher": "gikoyo",
   "repository": {
     "type": "git",
     "url": "https://github.com/yougikou/vs-code-bpmn-flex"

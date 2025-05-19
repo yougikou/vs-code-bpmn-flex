@@ -1,13 +1,13 @@
 {
-  "name": "vs-code-bpmn-io",
-  "displayName": "BPMN.io Editor",
-  "description": "Edit BPMN 2.0 files, powered by bpmn.io tools.",
+  "name": "vs-code-bpmn-flex",
+  "displayName": "BPMN.io Editor Flex",
+  "description": "Edit BPMN 2.0 files, powered by bpmn.io tools. Add more custom features",
   "license": "MIT",
-  "version": "0.22.1",
-  "publisher": "bpmn-io",
+  "version": "0.0.1",
+  "publisher": "giko-yo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bpmn-io/vs-code-bpmn-io"
+    "url": "https://github.com/yougikou/vs-code-bpmn-flex"
   },
   "engines": {
     "vscode": "^1.79.2",

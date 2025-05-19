@@ -22,13 +22,13 @@
     "bpmn"
   ],
   "activationEvents": [
-    "onCommand:extension.bpmn-io.edit"
+    "onCommand:extension.bpmn-flex.edit"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "bpmn-io.bpmnEditor.new",
+        "command": "bpmn-flex.bpmnEditor.new",
         "title": "Create new BPMN Document",
         "category": "BPMN"
       }
@@ -38,48 +38,48 @@
         "command": "",
         "key": "ctrl+a",
         "mac": "cmd+a",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+0",
         "mac": "cmd+0",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+numpad_add",
         "mac": "cmd+numpad_add",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+numpad_subtract",
         "mac": "cmd+numpad_subtract",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+=",
         "mac": "cmd+=",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+-",
         "mac": "cmd+-",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+z",
         "mac": "cmd+z",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       }
     ],
     "customEditors": [
       {
-        "viewType": "bpmn-io.bpmnEditor",
+        "viewType": "bpmn-flex.bpmnEditor",
         "displayName": "BPMN Editor",
         "selector": [
           {

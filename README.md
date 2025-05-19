@@ -1,10 +1,8 @@
 # BPMN Editor
 
-[![CI](https://github.com/bpmn-io/vs-code-bpmn-io/actions/workflows/CI.yml/badge.svg)](https://github.com/bpmn-io/vs-code-bpmn-io/actions/workflows/CI.yml)
+View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
 
-View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/). Powered by [bpmn.io tools](https://bpmn.io/).
-
-![VSCode BPMN Editor in use](https://raw.githubusercontent.com/bpmn-io/vs-code-bpmn-io/main/docs/screenshot.png)
+![VSCode BPMN Editor in use](https://raw.githubusercontent.com/yougikou/vs-code-bpmn-flex/main/docs/screenshot.png)
 
 
 ## Features

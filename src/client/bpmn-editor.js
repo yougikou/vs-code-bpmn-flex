@@ -20,6 +20,40 @@ const vscode = acquireVsCodeApi();
 
 handleMacOsKeyboard();
 
+// 侧边栏HTML结构
+const sidebarHTML = `
+<div id="editor-container">
+  <div id="canvas"></div>
+  <div id="sidebar">
+    <div id="sidebar-toggle">→</div>
+    <div id="sidebar-expand">[+]</div>
+    <div id="sidebar-minimize">[-]</div>
+    <div id="sidebar-content"></div>
+  </div>
+</div>
+`;
+
+document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+
+// 侧边栏状态管理
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarExpand = document.getElementById('sidebar-expand');
+
+sidebarToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  sidebarToggle.textContent = sidebar.classList.contains('collapsed') ? '←' : '→';
+});
+
+sidebarExpand.addEventListener('click', () => {
+  sidebar.classList.add('expanded');
+});
+
+const sidebarMinimize = document.getElementById('sidebar-minimize');
+sidebarMinimize.addEventListener('click', () => {
+  sidebar.classList.remove('expanded');
+});
+
 const customTranslateModule = {
   translate: [ 'value', customTranslate ]
 };

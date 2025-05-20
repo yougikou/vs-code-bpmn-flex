@@ -1,10 +1,8 @@
 # BPMN Editor
 
-[![CI](https://github.com/bpmn-io/vs-code-bpmn-io/actions/workflows/CI.yml/badge.svg)](https://github.com/bpmn-io/vs-code-bpmn-io/actions/workflows/CI.yml)
+View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
 
-View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/). Powered by [bpmn.io tools](https://bpmn.io/).
-
-![VSCode BPMN Editor in use](https://raw.githubusercontent.com/bpmn-io/vs-code-bpmn-io/main/docs/screenshot.png)
+![VSCode BPMN Editor in use](https://raw.githubusercontent.com/yougikou/vs-code-bpmn-flex/main/docs/screenshot.png)
 
 
 ## Features
@@ -13,11 +11,12 @@ View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/). Powered
 * Save changes to your local file
 * Undo/redo and other keyboard shortcuts
 * Create from empty `.bpmn` files
+* Add i18n support
 
 
 ## Installation
 
-Download it from the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=bpmn-io.vs-code-bpmn-io) or search for `vs-code-bpmn-io` directly inside VSCode.
+Download it from the VSCode Marketplace, search for `vs-code-bpmn-flex` directly inside VSCode.
 
 
 ## Build and Run
@@ -25,8 +24,8 @@ Download it from the [VSCode Marketplace](https://marketplace.visualstudio.com/i
 First step, clone this project to your local machine and open it with [VSCode](https://code.visualstudio.com/):
 
 ```sh
-git clone https://github.com/bpmn-io/vs-code-bpmn-io.git
-cd ./vs-code-bpmn-io
+git clone https://github.com/yougikou/vs-code-bpmn-flex.git
+cd ./vs-code-bpmn-flex
 npm install
 code .
 ```

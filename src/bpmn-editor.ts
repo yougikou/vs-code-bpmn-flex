@@ -235,7 +235,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     context.subscriptions.push(
-      vscode.commands.registerCommand('bpmn-io.bpmnEditor.new', async () => {
+      vscode.commands.registerCommand('bpmn-flex.bpmnEditor.new', async () => {
 
         const currentDocumentUri =
           vscode.window.activeTextEditor?.document.uri ||
@@ -272,7 +272,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
 
   private readonly log = vscode.window.createOutputChannel('BPMN Editor');
 
-  private static readonly viewType = 'bpmn-io.bpmnEditor';
+  private static readonly viewType = 'bpmn-flex.bpmnEditor';
 
   /**
    * Tracks all known webviews
@@ -289,7 +289,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
   ) {
 
     _context.subscriptions.push(
-      vscode.commands.registerCommand('bpmn-io.bpmnEditor.__state', (uri: vscode.Uri) => {
+      vscode.commands.registerCommand('bpmn-flex.bpmnEditor.__state', (uri: vscode.Uri) => {
 
         const document = this.documents.get(uri);
 
@@ -545,7 +545,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
       )?.(message.body);
 
     case 'canvas-focus-change':
-      vscode.commands.executeCommand('setContext', 'bpmn-io.bpmnEditor.canvasFocused', message.value);
+      vscode.commands.executeCommand('setContext', 'bpmn-flex.bpmnEditor.canvasFocused', message.value);
       return;
 
     }

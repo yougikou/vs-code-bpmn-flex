@@ -50,7 +50,7 @@ describe('extension', function() {
     it('should create new BPMN file', async () => {
 
       // when
-      const uri = await vscode.commands.executeCommand('bpmn-io.bpmnEditor.new') as vscode.Uri;
+      const uri = await vscode.commands.executeCommand('bpmn-flex.bpmnEditor.new') as vscode.Uri;
 
       // then
       expect(uri, 'uri exists').to.exist;
@@ -105,5 +105,5 @@ describe('extension', function() {
 
 
 function getExtension(uri: vscode.Uri) {
-  return vscode.commands.executeCommand('bpmn-io.bpmnEditor.__state', uri);
+  return vscode.commands.executeCommand('bpmn-flex.bpmnEditor.__state', uri);
 }

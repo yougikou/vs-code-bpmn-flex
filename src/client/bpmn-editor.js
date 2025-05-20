@@ -9,6 +9,7 @@ import './bpmn-editor.css';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
 import BpmnColorPickerModule from 'bpmn-js-color-picker';
+import customTranslate, { setLanguage } from './i18n/customTranslate';
 
 import { handleMacOsKeyboard } from './utils/macos-keyboard';
 
@@ -19,10 +20,53 @@ const vscode = acquireVsCodeApi();
 
 handleMacOsKeyboard();
 
-const modeler = new BpmnModeler({
+const customTranslateModule = {
+  translate: [ 'value', customTranslate ]
+};
+
+const languageSelectorHTML = `
+<div id="language-selector">
+  <select id="language-select">
+    <option value="ja">日本語</option>
+    <option value="zh">中文</option>
+    <option value="en">English</option>
+  </select>
+</div>
+`;
+
+document.body.insertAdjacentHTML('afterbegin', languageSelectorHTML);
+
+// 语言切换事件
+document.getElementById('language-select').addEventListener('change', async (e) => {
+  setLanguage(e.target.value);
+
+  // 保存当前内容并重建Modeler以完全刷新界面
+  const { xml } = await modeler.saveXML({ format: true });
+
+  // 销毁旧Modeler
+  modeler.destroy();
+
+  // 创建新Modeler实例
+  const newModeler = new BpmnModeler({
+    container: '#canvas',
+    additionalModules: [
+      BpmnColorPickerModule,
+      customTranslateModule
+    ]
+  });
+
+  // 重新导入之前的内容
+  await newModeler.importXML(xml);
+
+  // 更新modeler引用
+  modeler = newModeler;
+});
+
+let modeler = new BpmnModeler({
   container: '#canvas',
   additionalModules: [
-    BpmnColorPickerModule
+    BpmnColorPickerModule,
+    customTranslateModule
   ]
 });
 

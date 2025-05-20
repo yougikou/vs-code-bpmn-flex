@@ -1,13 +1,13 @@
 {
-  "name": "vs-code-bpmn-io",
-  "displayName": "BPMN.io Editor",
-  "description": "Edit BPMN 2.0 files, powered by bpmn.io tools.",
+  "name": "vs-code-bpmn-flex",
+  "displayName": "BPMN.flex Editor",
+  "description": "Edit BPMN 2.0 files, powered by bpmn.io tools. Add more custom features",
   "license": "MIT",
-  "version": "0.22.1",
-  "publisher": "bpmn-io",
+  "version": "0.0.3",
+  "publisher": "gikoyo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bpmn-io/vs-code-bpmn-io"
+    "url": "https://github.com/yougikou/vs-code-bpmn-flex"
   },
   "engines": {
     "vscode": "^1.79.2",
@@ -22,13 +22,13 @@
     "bpmn"
   ],
   "activationEvents": [
-    "onCommand:extension.bpmn-io.edit"
+    "onCommand:extension.bpmn-flex.edit"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "bpmn-io.bpmnEditor.new",
+        "command": "bpmn-flex.bpmnEditor.new",
         "title": "Create new BPMN Document",
         "category": "BPMN"
       }
@@ -38,48 +38,48 @@
         "command": "",
         "key": "ctrl+a",
         "mac": "cmd+a",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+0",
         "mac": "cmd+0",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+numpad_add",
         "mac": "cmd+numpad_add",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+numpad_subtract",
         "mac": "cmd+numpad_subtract",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+=",
         "mac": "cmd+=",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+-",
         "mac": "cmd+-",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       },
       {
         "command": "",
         "key": "ctrl+z",
         "mac": "cmd+z",
-        "when": "bpmn-io.bpmnEditor.canvasFocused"
+        "when": "bpmn-flex.bpmnEditor.canvasFocused"
       }
     ],
     "customEditors": [
       {
-        "viewType": "bpmn-io.bpmnEditor",
+        "viewType": "bpmn-flex.bpmnEditor",
         "displayName": "BPMN Editor",
         "selector": [
           {
@@ -135,7 +135,8 @@
   },
   "dependencies": {
     "@vscode/codicons": "^0.0.35",
-    "bpmn-js": "^18.1.2",
-    "bpmn-js-color-picker": "^0.7.1"
+    "bpmn-js": "^18.6.1",
+    "bpmn-js-color-picker": "^0.7.1",
+    "bpmn-js-i18n": "^2.3.0"
   }
 }

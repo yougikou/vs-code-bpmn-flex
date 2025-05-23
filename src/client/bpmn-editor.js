@@ -5,7 +5,9 @@ import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-js.css';
 
 import './bpmn-editor.css';
+import './sidebar/sidebar.css';
 
+import Sidebar from './sidebar/sidebar.js';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
 import BpmnColorPickerModule from 'bpmn-js-color-picker';
@@ -20,39 +22,9 @@ const vscode = acquireVsCodeApi();
 
 handleMacOsKeyboard();
 
-// 侧边栏HTML结构
-const sidebarHTML = `
-<div id="editor-container">
-  <div id="canvas"></div>
-  <div id="sidebar">
-    <div id="sidebar-toggle">→</div>
-    <div id="sidebar-expand">[+]</div>
-    <div id="sidebar-minimize">[-]</div>
-    <div id="sidebar-content"></div>
-  </div>
-</div>
-`;
-
-document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
-
-// 侧边栏状态管理
-const sidebar = document.getElementById('sidebar');
-const sidebarToggle = document.getElementById('sidebar-toggle');
-const sidebarExpand = document.getElementById('sidebar-expand');
-
-sidebarToggle.addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-  sidebarToggle.textContent = sidebar.classList.contains('collapsed') ? '←' : '→';
-});
-
-sidebarExpand.addEventListener('click', () => {
-  sidebar.classList.add('expanded');
-});
-
-const sidebarMinimize = document.getElementById('sidebar-minimize');
-sidebarMinimize.addEventListener('click', () => {
-  sidebar.classList.remove('expanded');
-});
+// Initialize sidebar
+const sidebarInstance = new Sidebar({ container: document.body });
+sidebarInstance.init();
 
 const customTranslateModule = {
   translate: [ 'value', customTranslate ]

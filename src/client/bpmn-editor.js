@@ -8,6 +8,7 @@ import './bpmn-editor.css';
 import './sidebar/sidebar.css';
 
 import Sidebar from './sidebar/sidebar.js';
+import { extractProperties } from './customPropsExtractor.js';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
 import BpmnColorPickerModule from 'bpmn-js-color-picker';
@@ -25,6 +26,8 @@ handleMacOsKeyboard();
 // Initialize sidebar
 const sidebarInstance = new Sidebar({ container: document.body });
 sidebarInstance.init();
+
+let customPropertiesConfig = {}; // Initialize with a default
 
 const customTranslateModule = {
   translate: [ 'value', customTranslate ]
@@ -105,6 +108,40 @@ modeler.on('canvas.focus.changed', (event) => {
   });
 });
 
+modeler.on('selection.changed', function(event) {
+  const newSelection = event.newSelection;
+
+  if (newSelection && newSelection.length === 1) {
+    const selectedElement = newSelection[0];
+    const props = extractProperties(selectedElement, customPropertiesConfig);
+
+    if (props && props.length > 0) {
+      let htmlContent = '<ul>';
+      for (const prop of props) {
+        // Basic HTML escaping
+        const displayLabel = String(prop.label).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const displayValue = String(prop.value).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        htmlContent += `<li><b>${displayLabel}:</b> ${displayValue}</li>`;
+      }
+      htmlContent += '</ul>';
+      sidebarInstance.updateCustomProperties(htmlContent);
+    } else {
+      // Display basic info and a message if no custom props or error
+      const elementId = String(selectedElement.id).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const elementType = String(selectedElement.type).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      sidebarInstance.updateCustomProperties(
+        `<p><b>ID:</b> ${elementId}</p>
+         <p><b>Type:</b> ${elementType}</p>
+         <p>No configured custom properties found for this element, or an error occurred during extraction.</p>`
+      );
+    }
+  } else {
+    sidebarInstance.updateCustomProperties(
+      '<p>Select a BPMN element to see its configured properties.</p>'
+    );
+  }
+});
+
 
 // handle messages from the extension
 window.addEventListener('message', async (event) => {
@@ -150,6 +187,13 @@ window.addEventListener('message', async (event) => {
 
   case 'focusCanvas':
     modeler.get('canvas').focus();
+    return;
+  case 'customConfig': // Handler for receiving custom properties configuration
+    customPropertiesConfig = event.data.payload || {};
+    console.log('Custom properties configuration received:', customPropertiesConfig);
+    // Optionally, trigger an update if an element is already selected
+    // This could be done by manually invoking a selection check or letting the next selection event handle it.
+    // For now, we'll rely on the next selection event.
     return;
   }
 });

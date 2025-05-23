@@ -145,3 +145,38 @@
   }
 }
 */
+
+/* Styles for Custom Properties Display */
+#custom-properties-content {
+  padding: 10px;
+  font-family: Arial, sans-serif; /* Or inherit from body/vscode styles */
+  font-size: 13px;
+  color: #333; /* Or inherit */
+}
+
+#custom-properties-content p { /* For placeholder messages */
+  margin-top: 0;
+  color: #666; /* Slightly muted placeholder text */
+}
+
+#custom-properties-content ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 0;
+}
+
+#custom-properties-content li {
+  padding: 4px 0;
+  border-bottom: 1px solid #eee; /* Separator for items */
+  word-wrap: break-word; /* Ensure long values wrap */
+}
+
+#custom-properties-content li:last-child {
+  border-bottom: none;
+}
+
+#custom-properties-content li b {
+  font-weight: 600; /* Make labels a bit bolder */
+  margin-right: 5px;
+  color: #111; /* Darker color for labels */
+}

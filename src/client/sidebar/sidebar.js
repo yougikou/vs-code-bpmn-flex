@@ -14,7 +14,10 @@ export default class Sidebar {
     <div id="sidebar-expand">[+]</div>
     <div id="sidebar-minimize">[-]</div>
     <div id="sidebar-content">
-      <!-- Sidebar content will go here -->
+      <div id="custom-properties-content">
+        <p>Select a BPMN element to see its configured properties.</p>
+      </div>
+      <!-- Other sidebar content could potentially go here or above -->
     </div>
   </div>
 </div>
@@ -25,6 +28,7 @@ export default class Sidebar {
     this.sidebarToggle = document.getElementById('sidebar-toggle');
     this.sidebarExpand = document.getElementById('sidebar-expand');
     this.sidebarMinimize = document.getElementById('sidebar-minimize');
+    this.customPropertiesContent = document.getElementById('custom-properties-content');
 
     // Set initial state to collapsed
     this.sidebar.classList.add('collapsed');
@@ -42,5 +46,11 @@ export default class Sidebar {
     this.sidebarMinimize.addEventListener('click', () => {
       this.sidebar.classList.remove('expanded');
     });
+  }
+
+  updateCustomProperties(htmlContent) {
+    if (this.customPropertiesContent) {
+      this.customPropertiesContent.innerHTML = htmlContent;
+    }
   }
 }

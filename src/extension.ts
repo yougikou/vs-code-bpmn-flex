@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { load as loadYaml } from 'js-yaml';
 
 import { BpmnEditor } from './bpmn-editor';
 
@@ -14,40 +13,37 @@ export interface CustomPropertiesConfig {
 let customPropertiesConfig: CustomPropertiesConfig = {}; // To store the parsed config
 
 async function loadCustomPropertiesConfig(_context: vscode.ExtensionContext) {
-  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-    const workspaceFolder = vscode.workspace.workspaceFolders[0]; // Assuming single root for simplicity
-    const configFileUri = vscode.Uri.joinPath(workspaceFolder.uri, '.vscode', 'bpmn-custom-properties.yaml');
+  try {
+    const config = vscode.workspace.getConfiguration('bpmn-flex');
+    const commonProps = config.get<Array<{ label: string; xpath: string }>>('commonProperties');
+    const elementSpecificProps = config.get<Record<string, Array<{ label: string; xpath: string }>>>('elementSpecificProperties');
 
-    try {
-      const rawContent = await vscode.workspace.fs.readFile(configFileUri);
-      const content = Buffer.from(rawContent).toString('utf8');
-      const parsedConfig = loadYaml(content);
-      if (parsedConfig && typeof parsedConfig === 'object') {
-        customPropertiesConfig = parsedConfig as CustomPropertiesConfig;
-        vscode.window.showInformationMessage('BPMN custom properties config loaded.');
-        console.log('BPMN Custom Properties Config:', customPropertiesConfig);
-      } else {
-        vscode.window.showErrorMessage('.vscode/bpmn-custom-properties.yaml is not a valid YAML object.');
-        customPropertiesConfig = {}; // Default to empty
-      }
-    } catch (error: unknown) { // Changed from any to unknown
-      if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
-        vscode.window.showInformationMessage('No .vscode/bpmn-custom-properties.yaml found. Using default behavior.');
-        customPropertiesConfig = {}; // Default to empty or some predefined structure
-      } else if (error instanceof Error && error.name === 'YAMLException') { // Type guard for Error
-        vscode.window.showErrorMessage(`Error parsing .vscode/bpmn-custom-properties.yaml: ${error.message}`);
-        customPropertiesConfig = {}; // Default on parsing error
-      } else if (error instanceof Error) { // General error with a message
-        vscode.window.showErrorMessage(`Error loading BPMN custom properties config: ${error.message}`);
-        customPropertiesConfig = {}; // Default on other errors
-      } else { // Fallback for other unknown error types
-        vscode.window.showErrorMessage('Error loading BPMN custom properties config: An unknown error occurred');
-        customPropertiesConfig = {}; // Default on other errors
-      }
+    if (commonProps) {
+      customPropertiesConfig.common = commonProps;
+    } else {
+      customPropertiesConfig.common = []; // Default to empty array if not found
     }
-  } else {
-    vscode.window.showInformationMessage('No workspace folder open. BPMN custom properties will not be loaded.');
-    customPropertiesConfig = {}; // No workspace, use default
+
+    if (elementSpecificProps) {
+      customPropertiesConfig.elementSpecific = elementSpecificProps;
+    } else {
+      customPropertiesConfig.elementSpecific = {}; // Default to empty object if not found
+    }
+
+    vscode.window.showInformationMessage('BPMN.flex custom properties loaded from VS Code settings.');
+    console.log('BPMN.flex Custom Properties Config:', customPropertiesConfig);
+
+  } catch (error: unknown) {
+    let message = 'An unknown error occurred while loading BPMN.flex custom properties from VS Code settings.';
+    if (error instanceof Error) {
+      message = `Error loading BPMN.flex custom properties from VS Code settings: ${error.message}`;
+    }
+    vscode.window.showErrorMessage(message);
+    // Default to empty configuration in case of any error
+    customPropertiesConfig = {
+      common: [],
+      elementSpecific: {}
+    };
   }
 }
 

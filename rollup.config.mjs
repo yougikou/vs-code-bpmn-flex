@@ -31,13 +31,70 @@ export default [
     }
   },
 
-  // app
+  // app - extension
   {
     input: 'src/extension.ts',
     output: {
       sourcemap: true,
       format: 'commonjs',
       file: './out/extension.js'
+    },
+    external: [ 'vscode' ], // vscode is external
+    plugins: [
+      typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - bpmn-editor provider
+  {
+    input: 'src/bpmn-editor.ts',
+    output: {
+      sourcemap: true,
+      format: 'commonjs',
+      file: './out/bpmn-editor.js'
+    },
+    external: [ 'vscode' ],
+    plugins: [
+      typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - dispose
+  {
+    input: 'src/dispose.ts',
+    output: {
+      sourcemap: true,
+      format: 'commonjs',
+      file: './out/dispose.js'
+    },
+    external: [ 'vscode' ],
+    plugins: [
+      typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - util
+  {
+    input: 'src/util.ts',
+    output: {
+      sourcemap: true,
+      format: 'commonjs',
+      file: './out/util.js'
     },
     external: [ 'vscode' ],
     plugins: [

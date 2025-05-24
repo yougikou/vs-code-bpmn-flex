@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Disposable, disposeAll } from './dispose';
 import { getNonce } from './util';
+import type { CustomPropertiesConfig } from './extension.js';
 
 /**
  * Define the type of edits used in paw draw files.
@@ -233,7 +234,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
 
   private static newFileId = 1;
 
-  public static register(context: vscode.ExtensionContext): vscode.Disposable {
+  public static register(context: vscode.ExtensionContext, customPropertiesConfig: CustomPropertiesConfig): vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand('bpmn-flex.bpmnEditor.new', async () => {
 
@@ -260,7 +261,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
 
     return vscode.window.registerCustomEditorProvider(
       BpmnEditor.viewType,
-      new BpmnEditor(context),
+      new BpmnEditor(context, customPropertiesConfig),
       {
         webviewOptions: {
           retainContextWhenHidden: true,
@@ -283,11 +284,13 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
    * Tracks all known documents
    */
   private readonly documents = new DocumentCollection();
+  private readonly customPropertiesConfig: CustomPropertiesConfig;
 
   constructor(
-    private readonly _context: vscode.ExtensionContext
+    private readonly _context: vscode.ExtensionContext,
+    customPropertiesConfig: CustomPropertiesConfig
   ) {
-
+    this.customPropertiesConfig = customPropertiesConfig;
     _context.subscriptions.push(
       vscode.commands.registerCommand('bpmn-flex.bpmnEditor.__state', (uri: vscode.Uri) => {
 
@@ -505,7 +508,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
   }
 
   private _requestId = 1;
-  private readonly _callbacks = new Map<number, (response: object) => void>();
+  private readonly _callbacks = new Map<number, (response: any) => void>();
 
   private postMessageWithResponse<R = unknown>(panel: vscode.WebviewPanel, type: string, body: object): Promise<R> {
     const requestId = this._requestId++;
@@ -529,20 +532,21 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
         this.log.appendLine(`${document.uri.fsPath} - ${message.error}`);
       }
 
-      for (const warning of message.warnings) {
+      for (const warning of message.warnings ?? []) {
         this.log.appendLine(`${document.uri.fsPath} - ${warning}`);
       }
 
-      if (message.error || message.warnings.length) {
+      if (message.error || (message.warnings && message.warnings.length > 0)) {
         this.log.show(true);
       }
 
       return document.makeEdit(message as BpmnEdit);
 
     case 'response':
-      return (
-        this._callbacks.get(message.requestId)
-      )?.(message.body);
+      if (typeof message.requestId === 'number' && this._callbacks.has(message.requestId)) {
+        this._callbacks.get(message.requestId)?.(message.body);
+      }
+      return;
 
     case 'canvas-focus-change':
       vscode.commands.executeCommand('setContext', 'bpmn-flex.bpmnEditor.canvasFocused', message.value);

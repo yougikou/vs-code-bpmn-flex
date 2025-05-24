@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { Disposable, disposeAll } from './dispose.js';
-import { getNonce } from './util.js';
+import { Disposable, disposeAll } from './dispose';
+import { getNonce } from './util';
 import type { CustomPropertiesConfig } from './extension.js';
 
 /**

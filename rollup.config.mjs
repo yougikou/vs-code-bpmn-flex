@@ -52,15 +52,53 @@ export default [
 
   // app - bpmn-editor provider
   {
-    input: 'src/bpmn-editor.ts', // New entry: compile src/bpmn-editor.ts
+    input: 'src/bpmn-editor.ts',
     output: {
       sourcemap: true,
-      format: 'commonjs',       // Output as CommonJS
-      file: './out/bpmn-editor.js' // Output to out/bpmn-editor.js
+      format: 'commonjs',
+      file: './out/bpmn-editor.js'
     },
-    external: [ 'vscode' ],     // vscode is also external here as bpmn-editor.ts uses it
+    external: [ 'vscode' ],
     plugins: [
-      typescript(),             // Use TypeScript plugin
+      typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - dispose
+  {
+    input: 'src/dispose.ts',
+    output: {
+      sourcemap: true,
+      format: 'commonjs',
+      file: './out/dispose.js'
+    },
+    external: [ 'vscode' ],
+    plugins: [
+      typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - util
+  {
+    input: 'src/util.ts',
+    output: {
+      sourcemap: true,
+      format: 'commonjs',
+      file: './out/util.js'
+    },
+    external: [ 'vscode' ],
+    plugins: [
+      typescript(),
       resolve(),
       commonjs()
     ],

@@ -91,7 +91,7 @@
   },
   "scripts": {
     "all": "run-s lint test",
-    "lint": "eslint .",
+    "lint": "npx eslint -c eslint.config.mjs .",
     "vscode:prepublish": "npm run compile",
     "package": "npx @vscode/vsce pack",
     "compile": "run-s compile:clean compile:app compile:tests",

@@ -505,20 +505,20 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
   }
 
   private _requestId = 1;
-  private readonly _callbacks = new Map<number, (response: any) => void>();
+  private readonly _callbacks = new Map<number, (response: object) => void>();
 
-  private postMessageWithResponse<R = unknown>(panel: vscode.WebviewPanel, type: string, body: any): Promise<R> {
+  private postMessageWithResponse<R = unknown>(panel: vscode.WebviewPanel, type: string, body: object): Promise<R> {
     const requestId = this._requestId++;
     const p = new Promise<R>(resolve => this._callbacks.set(requestId, resolve));
     panel.webview.postMessage({ type, requestId, body });
     return p;
   }
 
-  private postMessage(panel: vscode.WebviewPanel, type: string, body: any = {}): void {
+  private postMessage(panel: vscode.WebviewPanel, type: string, body: object = {}): void {
     panel.webview.postMessage({ type, body });
   }
 
-  private onMessage(document: BpmnDocument, message: any) {
+  private onMessage(document: BpmnDocument, message: { type: string, requestId?: number, body?: unknown, error?: string, warnings?: string[], value?: boolean, idx?: number }) {
     switch (message.type) {
     case 'change':
       return document.makeEdit(message as BpmnEdit);

@@ -118,6 +118,7 @@ modeler.on('selection.changed', function(event) {
     if (props && props.length > 0) {
       let htmlContent = '<ul>';
       for (const prop of props) {
+
         // Basic HTML escaping
         const displayLabel = String(prop.label).replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const displayValue = String(prop.value).replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -126,6 +127,7 @@ modeler.on('selection.changed', function(event) {
       htmlContent += '</ul>';
       sidebarInstance.updateCustomProperties(htmlContent);
     } else {
+
       // Display basic info and a message if no custom props or error
       const elementId = String(selectedElement.id).replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const elementType = String(selectedElement.type).replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -191,6 +193,7 @@ window.addEventListener('message', async (event) => {
   case 'customConfig': // Handler for receiving custom properties configuration
     customPropertiesConfig = event.data.payload || {};
     console.log('Custom properties configuration received:', customPropertiesConfig);
+
     // Optionally, trigger an update if an element is already selected
     // This could be done by manually invoking a selection check or letting the next selection event handle it.
     // For now, we'll rely on the next selection event.

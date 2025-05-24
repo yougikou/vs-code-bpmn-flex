@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { load as loadYaml } from 'js-yaml';
 
-import { BpmnEditor } from './bpmn-editor.js';
+import { BpmnEditor } from './bpmn-editor';
 
 // Define a basic interface for the custom properties configuration
 export interface CustomPropertiesConfig {

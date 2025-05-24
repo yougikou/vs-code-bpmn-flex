@@ -31,7 +31,7 @@ export default [
     }
   },
 
-  // app
+  // app - extension
   {
     input: 'src/extension.ts',
     output: {
@@ -39,9 +39,28 @@ export default [
       format: 'commonjs',
       file: './out/extension.js'
     },
-    external: [ 'vscode' ],
+    external: [ 'vscode' ], // vscode is external
     plugins: [
       typescript(),
+      resolve(),
+      commonjs()
+    ],
+    watch: {
+      clearScreen: false
+    }
+  },
+
+  // app - bpmn-editor provider
+  {
+    input: 'src/bpmn-editor.ts', // New entry: compile src/bpmn-editor.ts
+    output: {
+      sourcemap: true,
+      format: 'commonjs',       // Output as CommonJS
+      file: './out/bpmn-editor.js' // Output to out/bpmn-editor.js
+    },
+    external: [ 'vscode' ],     // vscode is also external here as bpmn-editor.ts uses it
+    plugins: [
+      typescript(),             // Use TypeScript plugin
       resolve(),
       commonjs()
     ],

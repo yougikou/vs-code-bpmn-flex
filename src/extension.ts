@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import * as yaml from 'js-yaml';
+import { load as loadYaml } from 'js-yaml';
 
-import { BpmnEditor } from './bpmn-editor';
+import { BpmnEditor } from './bpmn-editor.js';
 
 // Define a basic interface for the custom properties configuration
-interface CustomPropertiesConfig {
+export interface CustomPropertiesConfig {
   common?: Array<{ label: string; xpath: string }>;
   elementSpecific?: Record<string, Array<{ label: string; xpath: string }>>;
 
@@ -21,9 +21,9 @@ async function loadCustomPropertiesConfig(_context: vscode.ExtensionContext) {
     try {
       const rawContent = await vscode.workspace.fs.readFile(configFileUri);
       const content = Buffer.from(rawContent).toString('utf8');
-      const parsedConfig = yaml.load(content);
+      const parsedConfig = loadYaml(content);
       if (parsedConfig && typeof parsedConfig === 'object') {
-        customPropertiesConfig = parsedConfig;
+        customPropertiesConfig = parsedConfig as CustomPropertiesConfig;
         vscode.window.showInformationMessage('BPMN custom properties config loaded.');
         console.log('BPMN Custom Properties Config:', customPropertiesConfig);
       } else {

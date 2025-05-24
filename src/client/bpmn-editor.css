@@ -1,6 +1,10 @@
 html, body {
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  overflow: hidden;
 }
 
 body {
@@ -8,14 +12,144 @@ body {
   background: white;
 }
 
-#canvas {
-  overflow: hidden;
+#editor-container {
+  display: flex;
   width: 100%;
   height: 100%;
 }
 
+#canvas {
+  overflow: hidden;
+  flex: 1;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
 #canvas svg:focus {
   outline: none;
+}
+
+#sidebar {
+  width: 300px;
+  height: 100%;
+  background: #f5f5f5;
+  border-left: 1px solid #ddd;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: auto;
+}
+
+#sidebar.collapsed {
+  width: 40px;
+}
+
+#sidebar.expanded {
+  position: fixed;
+  width: 60%;
+  height: 80%;
+  top: 10%;
+  left: 20%;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+#sidebar-toggle {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 24px;
+  height: 24px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+#sidebar-expand {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+#sidebar-minimize {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  display: none;
+}
+
+#sidebar.expanded #sidebar-toggle {
+  display: none;
+}
+
+#sidebar.expanded #sidebar-expand {
+  display: none;
+}
+
+#sidebar.expanded #sidebar-minimize {
+  display: flex;
+}
+
+#sidebar {
+  transform-origin: top right;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebar.expanded {
+  position: fixed;
+  width: calc(100% - 200px);
+  height: calc(100% - 200px);
+  top: 100px;
+  left: 100px;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  animation: expand 0.3s forwards;
+}
+
+@keyframes expand {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#sidebar:not(.expanded) {
+  animation: collapse 0.3s forwards;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+@keyframes collapse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.5);
+    opacity: 0;
+  }
 }
 
 #language-selector {
@@ -35,4 +169,3 @@ body {
   display: grid;
   grid: auto-flow / 1fr 1fr 1fr;
 }
-

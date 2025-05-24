@@ -39,8 +39,10 @@ export class Uri {
   toJSON = noop;
   with = noopUri;
 
-  constructor(options?: any) {
-    this.fsPath = options.fsPath;
+  constructor(options?: { fsPath: string }) {
+    if (options) {
+      this.fsPath = options.fsPath;
+    }
   }
 }
 
@@ -56,15 +58,17 @@ export class Webview {
   postMessage = noopThenable;
   cspSource = '';
 
-  constructor(options?: any) {
+  constructor(options?: { resourcePath?: string }) {
 
-    if (options.resourcePath) {
+    if (options && typeof options.resourcePath === 'string') {
+      const actualResourcePath: string = options.resourcePath; // Explicitly typed variable
       this.asWebviewUri = () => {
         return new Uri({
-          fsPath: options.resourcePath
+          fsPath: actualResourcePath // Use the new variable
         });
       };
     }
 
+    // If resourcePath is not provided or not a string, asWebviewUri will remain the default noopUri
   }
 }

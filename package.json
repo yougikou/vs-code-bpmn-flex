@@ -91,7 +91,7 @@
   },
   "scripts": {
     "all": "run-s lint test",
-    "lint": "eslint .",
+    "lint": "npx eslint -c eslint.config.mjs .",
     "vscode:prepublish": "npm run compile",
     "package": "npx @vscode/vsce pack",
     "compile": "run-s compile:clean compile:app compile:tests",
@@ -131,12 +131,16 @@
     "sinon": "^17.0.1",
     "sinon-chai": "^3.7.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.14.0"
+    "typescript-eslint": "^8.14.0",
+    "@types/js-yaml": "^4.0.9"
   },
   "dependencies": {
+    "js-yaml": "^4.1.0",
     "@vscode/codicons": "^0.0.35",
     "bpmn-js": "^18.6.1",
     "bpmn-js-color-picker": "^0.7.1",
-    "bpmn-js-i18n": "^2.3.0"
+    "bpmn-js-i18n": "^2.3.0",
+    "xpath": "^0.0.34",
+    "xmldom": "^0.6.0"
   }
 }

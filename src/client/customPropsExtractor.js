@@ -48,22 +48,35 @@ export function extractProperties(bpmnElement, config) {
     try {
 
       // Dynamic XPath evaluation based on config type
-      let attrName, pathParts, currentObj;
+      let pathParts, currentObj;
+
+      pathParts = propDef.xpath.split('/');
+      currentObj = businessObject;
+      if (!currentObj) continue;
+
+      // 处理嵌套属性访问
+      for (let i = 0; i < pathParts.length; i++) {
+        const part = pathParts[i].replace('bpmn:', '');
+
+        // 获取当前层级的属性
+        currentObj = currentObj[part];
+
+        // 中间路径处理：数组取第一个元素
+        if (currentObj) {
+          if (Array.isArray(currentObj)) {
+            currentObj = currentObj[0];
+          }
+        }
+      }
+
+      if (!currentObj) continue;
 
       switch (propDef.type) {
       case 'attribute':
-        attrName = propDef.xpath.startsWith('@') ?
-          propDef.xpath.substring(1) : propDef.xpath;
-        value = businessObject.$attrs?.[attrName] ?? businessObject[attrName];
+        value = currentObj;
         break;
       case 'elementText':
-        pathParts = propDef.xpath.split('/');
-        currentObj = businessObject;
-        for (const part of pathParts) {
-          if (!currentObj) break;
-          currentObj = currentObj[part.replace('bpmn:', '')];
-        }
-        value = currentObj;
+        value = currentObj.text;
         break;
       case 'fullXPath':
 

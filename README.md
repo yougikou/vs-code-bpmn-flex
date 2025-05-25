@@ -13,6 +13,40 @@ View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
 * Create from empty `.bpmn` files
 * Add i18n support
 
+## Feature Details
+1. Added Chinese, Japanese, English selector
+2. Added custom attribute, elements to side panel to show
+   1. Add below setting configuration:
+    ```json
+       "bpmn-flex.commonProperties": [
+        {
+            "type": "attribute",
+            "xpath": "name",
+            "label": "Name"
+        },
+        {
+            "type": "elementText",
+            "xpath": "bpmn:documentation",
+            "label": "Documentation"
+        }
+    ],
+    "bpmn-flex.elementSpecificProperties": {
+        "bpmn:Process": [
+            {
+              "type": "attribute",
+              "xpath": "name",
+              "label": "Name"
+            }
+        ],
+        "bpmn:ServiceTask": [
+          {
+              "type": "elementText",
+              "xpath": "bpmn:documentation",
+              "label": "Documentation"
+          }
+        ]
+    }
+  ```
 
 ## Installation
 

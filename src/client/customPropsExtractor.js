@@ -46,36 +46,42 @@ export function extractProperties(bpmnElement, config) {
   for (const propDef of configToApply) {
     let value = undefined; // Initialize to undefined to distinguish from null or empty string
     try {
-
-      // Simplified XPath-like evaluation:
-      if (propDef.xpath.startsWith('@')) { // Attribute
-        const attrName = propDef.xpath.substring(1);
-        value = businessObject.$attrs?.[attrName];
-        if (value === undefined && businessObject[attrName] !== undefined) {
-
-          // Fallback for some common attributes not in $attrs (e.g. 'name' on many elements)
-          value = businessObject[attrName];
+      if (propDef.displayType === 'textValue') {
+        // Attempt to get direct text content
+        // Option 1: Use xpath as the direct property name
+        if (propDef.xpath && businessObject.hasOwnProperty(propDef.xpath)) {
+          value = businessObject[propDef.xpath];
         }
-      } else if (propDef.xpath.includes('bpmn:documentation/text()')) {
-
-        // More robust check for documentation
-        if (businessObject.documentation && businessObject.documentation.length > 0) {
-          value = businessObject.documentation[0].text;
+        // Option 2: Specific fallbacks if Option 1 didn't yield a value
+        if (value === undefined) { // Check if value is still not set
+          if (bpmnElement.type === 'bpmn:TextAnnotation' && businessObject.text) {
+            value = businessObject.text;
+          } else if (businessObject.name) { // Common for many elements
+            value = businessObject.name;
+          }
         }
-      } else if (propDef.xpath.includes('bpmn:conditionExpression/text()')) {
-
-        // Check for conditionExpression specifically
-        if (businessObject.conditionExpression && businessObject.conditionExpression.body) {
-          value = businessObject.conditionExpression.body;
+      } else { // Default to 'property' (XPath-like evaluation) or if displayType is undefined
+        if (propDef.xpath.startsWith('@')) { // Attribute
+          const attrName = propDef.xpath.substring(1);
+          value = businessObject.$attrs?.[attrName];
+          if (value === undefined && businessObject[attrName] !== undefined) {
+            // Fallback for some common attributes not in $attrs (e.g. 'name' on many elements)
+            value = businessObject[attrName];
+          }
+        } else if (propDef.xpath.includes('bpmn:documentation/text()')) {
+          // More robust check for documentation
+          if (businessObject.documentation && businessObject.documentation.length > 0) {
+            value = businessObject.documentation[0].text;
+          }
+        } else if (propDef.xpath.includes('bpmn:conditionExpression/text()')) {
+          // Check for conditionExpression specifically
+          if (businessObject.conditionExpression && businessObject.conditionExpression.body) {
+            value = businessObject.conditionExpression.body;
+          }
         }
+        // TODO: Add more cases for common extensionElements patterns if possible,
+        // but full XPath on bpmn:extensionElements is complex without proper XML DOM.
       }
-
-      // TODO: Add more cases for common extensionElements patterns if possible,
-      // but full XPath on bpmn:extensionElements is complex without proper XML DOM.
-      // For a full XPath solution:
-      // 1. Serialize businessObject to XML string (needs a moddle-aware serializer).
-      // 2. Parse XML string with `new DOMParser().parseFromString(xmlString, 'text/xml');`
-      // 3. Use `xpath.select(propDef.xpath, doc)`
 
       if (value !== undefined && value !== null) {
         properties.push({ label: propDef.label, value: String(value) });
@@ -83,7 +89,7 @@ export function extractProperties(bpmnElement, config) {
         properties.push({ label: propDef.label, value: 'N/A' });
       }
     } catch (e) {
-      console.warn(`Error evaluating XPath "${propDef.xpath}" for element ${bpmnElement.id}:`, e);
+      console.warn(`Error processing property "${propDef.label}" (xpath: "${propDef.xpath}", displayType: "${propDef.displayType}") for element ${bpmnElement.id}:`, e);
       properties.push({ label: propDef.label, value: 'Error evaluating' });
     }
   }

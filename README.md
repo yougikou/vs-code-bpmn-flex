@@ -11,7 +11,8 @@ View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
 * Save changes to your local file
 * Undo/redo and other keyboard shortcuts
 * Create from empty `.bpmn` files
-* Add i18n support
+* Internationalization support for both the BPMN modeler and sidebar informational messages (English, Chinese, Japanese).
+* Customizable properties display in the sidebar (see [Custom Properties Configuration](#custom-properties-configuration)).
 
 
 ## Installation
@@ -48,3 +49,70 @@ npm run all
 MIT
 
 Contains parts ([bpmn-js](https://github.com/bpmn-io/bpmn-js)) released under the [bpmn.io license](http://bpmn.io/license).
+
+## Custom Properties Configuration
+
+You can customize the properties displayed in the sidebar for selected BPMN elements by adding a configuration to your VS Code `settings.json` file (either user settings or workspace `.vscode/settings.json`). This configuration should be placed under the `bpmn-flex.customProperties` key. It allows you to define common properties for all elements and specific properties for particular BPMN types.
+
+Each property definition is an object with the following fields:
+*   `label`: (string, required) The label displayed for the property in the sidebar.
+*   `xpath`: (string, required) An XPath-like expression to retrieve the property value from the element's business object, or a direct property name if using `displayType: 'textValue'`.
+*   `displayType`: (string, optional) Defines how the `xpath` is interpreted.
+    *   `property` (default if undefined): Interprets `xpath` to access attributes (e.g., `@id`), documentation (`bpmn:documentation/text()`), condition expressions (`bpmn:conditionExpression/text()`), or other properties from the element's business object.
+    *   `textValue`: Interprets `xpath` as a direct key to access a text property from the element's `businessObject` (e.g., `name` for an element's name, `text` for a `bpmn:TextAnnotation`). If the key specified in `xpath` is not found, it will attempt to fall back to `businessObject.text` (for TextAnnotations) or `businessObject.name`.
+
+### Example: `settings.json`
+
+```json
+// In your .vscode/settings.json or global settings
+{
+  "bpmn-flex.customProperties": {
+    "common": [
+      {
+        "label": "Element ID",
+        "xpath": "@id",
+        "displayType": "property"
+      },
+      {
+        "label": "Element Name",
+        "xpath": "name",
+        "displayType": "textValue"
+      },
+      {
+        "label": "Documentation",
+        "xpath": "bpmn:documentation/text()",
+        "displayType": "property"
+      }
+    ],
+    "elementSpecific": {
+      "bpmn:TextAnnotation": [
+        {
+          "label": "Annotation Text",
+          "xpath": "text",
+          "displayType": "textValue"
+        }
+      ],
+      "bpmn:SequenceFlow": [
+        {
+          "label": "Condition",
+          "xpath": "bpmn:conditionExpression/text()",
+          "displayType": "property"
+        }
+      ],
+      "bpmn:UserTask": [
+        {
+          "label": "Assignee",
+          "xpath": "@assignee",
+          "displayType": "property"
+        },
+        {
+          "label": "Priority",
+          "xpath": "@priority"
+        }
+      ]
+    }
+  }
+}
+```
+
+This configuration will display the "Element ID", "Element Name", and "Documentation" for all elements. For `bpmn:TextAnnotation` elements, it will also show "Annotation Text". For `bpmn:SequenceFlow` elements, it will show "Condition", and for `bpmn:UserTask` elements, it will show "Assignee" and "Priority".

@@ -9,6 +9,7 @@ export const customTranslations = {
     'Red': '赤',
     'Purple': '紫',
     'Properties': 'プロパティ',
+    'selectElementPrompt': '設定されたプロパティを表示するには、BPMN要素を選択してください。',
   },
   zh: {
     'Set color': '设置颜色',
@@ -19,6 +20,7 @@ export const customTranslations = {
     'Red': '红',
     'Purple': '紫',
     'Properties': '属性',
+    'selectElementPrompt': '请选择一个BPMN元素以查看其配置属性。',
   },
   en: {
     'Set color': 'Set color',
@@ -29,5 +31,6 @@ export const customTranslations = {
     'Red': 'Red',
     'Purple': 'Purple',
     'Properties': 'Properties',
+    'selectElementPrompt': 'Select a BPMN element to see its configured properties.',
   }
 };

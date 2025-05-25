@@ -1,8 +1,10 @@
 // src/client/sidebar/sidebar.js
 
 export default class Sidebar {
-  constructor(options) {
+  constructor(options, translateFn) {
     this.container = options.container || document.body;
+    this.translate = translateFn || ((key) => `${key}`); // Basic fallback for translateFn
+    this.isDisplayingDefaultMessage = false; // Track if default message is shown
   }
 
   init() {
@@ -15,7 +17,7 @@ export default class Sidebar {
     <div id="sidebar-minimize">[-]</div>
     <div id="sidebar-content">
       <div id="custom-properties-content">
-        <p>Select a BPMN element to see its configured properties.</p>
+        <!-- Initial content will be set by showDefaultSelectionMessage -->
       </div>
       <!-- Other sidebar content could potentially go here or above -->
     </div>
@@ -29,14 +31,23 @@ export default class Sidebar {
     this.sidebarExpand = document.getElementById('sidebar-expand');
     this.sidebarMinimize = document.getElementById('sidebar-minimize');
     this.customPropertiesContent = document.getElementById('custom-properties-content');
+    this.sidebarContent = document.getElementById('sidebar-content');
 
-    // Set initial state to collapsed
+    // Set initial state
+    this.showDefaultSelectionMessage(); // Set initial message
     this.sidebar.classList.add('collapsed');
-    this.sidebarToggle.textContent = '←'; // Update toggle arrow for collapsed state
+    this.sidebarContent.classList.add('content-hidden');
+    this.sidebarToggle.textContent = '←';
 
     this.sidebarToggle.addEventListener('click', () => {
       this.sidebar.classList.toggle('collapsed');
-      this.sidebarToggle.textContent = this.sidebar.classList.contains('collapsed') ? '←' : '→';
+      if (this.sidebar.classList.contains('collapsed')) {
+        this.sidebarContent.classList.add('content-hidden');
+        this.sidebarToggle.textContent = '←';
+      } else {
+        this.sidebarContent.classList.remove('content-hidden');
+        this.sidebarToggle.textContent = '→';
+      }
     });
 
     this.sidebarExpand.addEventListener('click', () => {
@@ -48,9 +59,18 @@ export default class Sidebar {
     });
   }
 
+  showDefaultSelectionMessage() {
+    if (this.customPropertiesContent) {
+      const message = this.translate('selectElementPrompt') || 'Select a BPMN element to see its configured properties.'; // Fallback
+      this.customPropertiesContent.innerHTML = `<p>${message}</p>`;
+      this.isDisplayingDefaultMessage = true;
+    }
+  }
+
   updateCustomProperties(htmlContent) {
     if (this.customPropertiesContent) {
       this.customPropertiesContent.innerHTML = htmlContent;
+      this.isDisplayingDefaultMessage = false; // When custom props are shown, it's not the default message
     }
   }
 }

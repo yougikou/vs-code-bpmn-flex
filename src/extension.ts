@@ -3,10 +3,17 @@ import { load as loadYaml } from 'js-yaml';
 
 import { BpmnEditor } from './bpmn-editor';
 
+// Define the structure for a single property
+interface PropertyDefinition {
+  label: string;
+  xpath: string; // Used if displayType is 'property' or undefined
+  displayType?: 'property' | 'textValue'; // New optional field
+}
+
 // Define a basic interface for the custom properties configuration
 export interface CustomPropertiesConfig {
-  common?: Array<{ label: string; xpath: string }>;
-  elementSpecific?: Record<string, Array<{ label: string; xpath: string }>>;
+  common?: PropertyDefinition[];
+  elementSpecific?: Record<string, PropertyDefinition[]>;
 
   // Allow other properties if necessary, or make it stricter
   [key: string]: unknown; // Changed 'any' to 'unknown'

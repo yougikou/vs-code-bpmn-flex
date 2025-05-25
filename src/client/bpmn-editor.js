@@ -23,9 +23,9 @@ const vscode = acquireVsCodeApi();
 
 handleMacOsKeyboard();
 
-// Initialize sidebar
-const sidebarInstance = new Sidebar({ container: document.body });
-sidebarInstance.init();
+// Modeler is initialized later, so we need to defer sidebar instantiation or update its translate function.
+// For simplicity in this step, we'll initialize sidebar after the first modeler is ready.
+// This will be slightly adjusted when modeler initialization is wrapped.
 
 let customPropertiesConfig = {}; // Initialize with a default
 
@@ -47,7 +47,7 @@ document.body.insertAdjacentHTML('afterbegin', languageSelectorHTML);
 
 // 语言切换事件
 document.getElementById('language-select').addEventListener('change', async (e) => {
-  setLanguage(e.target.value);
+  setLanguage(e.target.value); // This sets the language for the customTranslate module
 
   // 保存当前内容并重建Modeler以完全刷新界面
   const { xml } = await modeler.saveXML({ format: true });
@@ -69,8 +69,18 @@ document.getElementById('language-select').addEventListener('change', async (e) 
 
   // 更新modeler引用
   modeler = newModeler;
+
+  // Update sidebar's translate function reference from the new modeler instance
+  // and refresh its default message if it's currently being shown.
+  if (sidebarInstance) { // Ensure sidebarInstance is initialized
+    sidebarInstance.translate = modeler.get('translate');
+    if (sidebarInstance.isDisplayingDefaultMessage) {
+      sidebarInstance.showDefaultSelectionMessage();
+    }
+  }
 });
 
+// Initialize BpmnModeler
 let modeler = new BpmnModeler({
   container: '#canvas',
   additionalModules: [
@@ -78,6 +88,12 @@ let modeler = new BpmnModeler({
     customTranslateModule
   ]
 });
+
+// Initialize Sidebar after modeler is ready so we can pass the translate function
+const translate = modeler.get('translate');
+const sidebarInstance = new Sidebar({ container: document.body }, translate);
+sidebarInstance.init();
+
 
 modeler.on('import.done', event => {
   return vscode.postMessage({
@@ -138,9 +154,7 @@ modeler.on('selection.changed', function(event) {
       );
     }
   } else {
-    sidebarInstance.updateCustomProperties(
-      '<p>Select a BPMN element to see its configured properties.</p>'
-    );
+    sidebarInstance.showDefaultSelectionMessage(); // Changed this line
   }
 });
 

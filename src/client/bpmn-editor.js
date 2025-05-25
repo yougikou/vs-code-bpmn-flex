@@ -131,11 +131,11 @@ modeler.on('selection.changed', function(event) {
       // Display basic info and a message if no custom props or error
       const elementId = String(selectedElement.id).replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const elementType = String(selectedElement.type).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      sidebarInstance.updateCustomProperties(
-        `<p><b>ID:</b> ${elementId}</p>
-         <p><b>Type:</b> ${elementType}</p>
-         <p>No configured custom properties found for this element, or an error occurred during extraction.</p>`
-      );
+      sidebarInstance.updateCustomProperties(`
+        <p><b>ID:</b> ${elementId}</p>
+        <p><b>Type:</b> ${elementType}</p>
+        <p>No configured custom properties found for this element, or an error occurred during extraction.</p>
+      `);
     }
   } else {
     sidebarInstance.updateCustomProperties(
@@ -191,7 +191,7 @@ window.addEventListener('message', async (event) => {
     modeler.get('canvas').focus();
     return;
   case 'customConfig': // Handler for receiving custom properties configuration
-    customPropertiesConfig = event.data.payload || {};
+    customPropertiesConfig = event.data.body || {};
     console.log('Custom properties configuration received:', customPropertiesConfig);
 
     // Optionally, trigger an update if an element is already selected

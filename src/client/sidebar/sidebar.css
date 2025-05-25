@@ -152,6 +152,7 @@
   font-family: Arial, sans-serif; /* Or inherit from body/vscode styles */
   font-size: 13px;
   color: #333; /* Or inherit */
+  margin-top: 32px
 }
 
 #custom-properties-content p { /* For placeholder messages */

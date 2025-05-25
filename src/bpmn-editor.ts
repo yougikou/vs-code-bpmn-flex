@@ -405,6 +405,7 @@ export class BpmnEditor implements vscode.CustomEditorProvider<BpmnDocument> {
             editable,
           });
         }
+        this.postMessage(webviewPanel, 'customConfig', this.customPropertiesConfig);
       }
     });
 

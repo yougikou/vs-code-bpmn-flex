@@ -44,40 +44,38 @@ export function extractProperties(bpmnElement, config) {
   // and then note that a full XPath engine would require proper XML serialization.
 
   for (const propDef of configToApply) {
-    let value = undefined; // Initialize to undefined to distinguish from null or empty string
+    let value = undefined;
     try {
 
-      // Simplified XPath-like evaluation:
-      if (propDef.xpath.startsWith('@')) { // Attribute
-        const attrName = propDef.xpath.substring(1);
-        value = businessObject.$attrs?.[attrName];
-        if (value === undefined && businessObject[attrName] !== undefined) {
+      // Dynamic XPath evaluation based on config type
+      let attrName, pathParts, currentObj;
 
-          // Fallback for some common attributes not in $attrs (e.g. 'name' on many elements)
-          value = businessObject[attrName];
+      switch (propDef.type) {
+      case 'attribute':
+        attrName = propDef.xpath.startsWith('@') ?
+          propDef.xpath.substring(1) : propDef.xpath;
+        value = businessObject.$attrs?.[attrName] ?? businessObject[attrName];
+        break;
+      case 'elementText':
+        pathParts = propDef.xpath.split('/');
+        currentObj = businessObject;
+        for (const part of pathParts) {
+          if (!currentObj) break;
+          currentObj = currentObj[part.replace('bpmn:', '')];
         }
-      } else if (propDef.xpath.includes('bpmn:documentation/text()')) {
+        value = currentObj;
+        break;
+      case 'fullXPath':
 
-        // More robust check for documentation
-        if (businessObject.documentation && businessObject.documentation.length > 0) {
-          value = businessObject.documentation[0].text;
-        }
-      } else if (propDef.xpath.includes('bpmn:conditionExpression/text()')) {
-
-        // Check for conditionExpression specifically
-        if (businessObject.conditionExpression && businessObject.conditionExpression.body) {
-          value = businessObject.conditionExpression.body;
-        }
+        // TODO: Implement full XPath evaluation
+        // Requires serializeBusinessObject implementation
+        console.warn('Full XPath evaluation not yet implemented');
+        break;
+      default:
+        console.warn(`Unknown xpath type: ${propDef.type}`);
       }
 
-      // TODO: Add more cases for common extensionElements patterns if possible,
-      // but full XPath on bpmn:extensionElements is complex without proper XML DOM.
-      // For a full XPath solution:
-      // 1. Serialize businessObject to XML string (needs a moddle-aware serializer).
-      // 2. Parse XML string with `new DOMParser().parseFromString(xmlString, 'text/xml');`
-      // 3. Use `xpath.select(propDef.xpath, doc)`
-
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && value !== '') {
         properties.push({ label: propDef.label, value: String(value) });
       } else {
         properties.push({ label: propDef.label, value: 'N/A' });

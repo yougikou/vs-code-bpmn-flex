@@ -87,7 +87,58 @@
           }
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "BPMN.flex Configuration",
+      "properties": {
+        "bpmn-flex.commonProperties": {
+          "type": "array",
+          "description": "Define common properties applicable to all BPMN elements.",
+          "items": {
+            "type": "object",
+            "title": "Common Property",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "The display label for the property."
+              },
+              "xpath": {
+                "type": "string",
+                "description": "The XPath expression to select the property's value from the BPMN XML."
+              }
+            },
+            "required": ["label", "xpath"]
+          },
+          "default": []
+        },
+        "bpmn-flex.elementSpecificProperties": {
+          "type": "object",
+          "description": "Define properties specific to certain BPMN element types. Use the BPMN element type (e.g., 'bpmn:Task', 'bpmn:UserTask') as the key.",
+          "additionalProperties": {
+            "type": "array",
+            "description": "Properties for the specified element type.",
+            "items": {
+              "type": "object",
+              "title": "Element Specific Property",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The display label for the property."
+                },
+                "xpath": {
+                  "type": "string",
+                  "description": "The XPath expression to select the property's value from the BPMN XML for this element type."
+                }
+              },
+              "required": ["label", "xpath"]
+            },
+            "default": []
+          },
+          "default": {}
+        }
+      }
+    }
   },
   "scripts": {
     "all": "run-s lint test",
@@ -111,7 +162,6 @@
     "@rollup/plugin-url": "^8.0.2",
     "@types/chai": "^4.3.20",
     "@types/glob": "^8.1.0",
-    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.9",
     "@types/node": "^20.17.6",
     "@types/shelljs": "^0.8.15",
@@ -140,7 +190,6 @@
     "bpmn-js": "^18.6.1",
     "bpmn-js-color-picker": "^0.7.1",
     "bpmn-js-i18n": "^2.3.0",
-    "js-yaml": "^4.1.0",
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
   }

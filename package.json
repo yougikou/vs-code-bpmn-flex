@@ -3,7 +3,7 @@
   "displayName": "BPMN.flex Editor",
   "description": "Edit BPMN 2.0 files, powered by bpmn.io tools. Add more custom features",
   "license": "MIT",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "gikoyo",
   "repository": {
     "type": "git",
@@ -108,7 +108,10 @@
                 "description": "The XPath expression to select the property's value from the BPMN XML."
               }
             },
-            "required": ["label", "xpath"]
+            "required": [
+              "label",
+              "xpath"
+            ]
           },
           "default": []
         },
@@ -131,7 +134,10 @@
                   "description": "The XPath expression to select the property's value from the BPMN XML for this element type."
                 }
               },
-              "required": ["label", "xpath"]
+              "required": [
+                "label",
+                "xpath"
+              ]
             },
             "default": []
           },
@@ -181,7 +187,6 @@
     "shx": "^0.3.4",
     "sinon": "^17.0.1",
     "sinon-chai": "^3.7.0",
-    "tslib": "^2.8.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.14.0"
   },
@@ -190,7 +195,11 @@
     "bpmn-js": "^18.6.1",
     "bpmn-js-color-picker": "^0.7.1",
     "bpmn-js-i18n": "^2.3.0",
+    "tslib": "^2.8.1",
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
-  }
+  },
+  "bundledDependencies": [
+    "tslib"
+  ]
 }

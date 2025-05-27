@@ -201,5 +201,79 @@ window.addEventListener('message', async (event) => {
   }
 });
 
+// Create download button elements
+const downloadButtonContainer = document.createElement('div');
+const downloadButton = document.createElement('button');
+// const dropdownMenu = document.createElement('div'); // No longer needed
+const exportSvgLink = document.createElement('a'); // Still defined but not used in DOM
+// const exportExcelLink = document.createElement('a'); // Removed
+
+// Style and configure download button elements
+downloadButtonContainer.id = 'download-button-container';
+downloadButton.id = 'download-button';
+// downloadButton.textContent = 'Download'; // Will be set to "Download SVG"
+// dropdownMenu.id = 'download-dropdown-menu'; // No longer needed
+// dropdownMenu.style.display = 'none'; // No longer needed
+
+exportSvgLink.id = 'export-svg-link'; // Still defined but not used in DOM
+exportSvgLink.textContent = 'Export as SVG'; // Still defined but not used in DOM
+exportSvgLink.href = '#'; // Still defined but not used in DOM
+// exportExcelLink related definitions are removed by removing the whole block of Excel code.
+
+// Store the SVG export function
+const svgExportFunction = async (event) => {
+  event.preventDefault(); // Prevent default link behavior
+  try {
+    const { svg } = await modeler.saveSVG();
+    triggerDownload('diagram.svg', svg, 'image/svg+xml');
+  } catch (err) {
+    console.error('Error exporting SVG:', err);
+    alert('Error exporting SVG: ' + err.message);
+  }
+};
+
+// Change downloadButton to be a direct SVG export button
+downloadButton.textContent = 'Download SVG';
+// Remove old dropdown toggle listener by cloning the button
+const newDownloadButton = downloadButton.cloneNode(true);
+// Replace the old button with the new one in the DOM.
+// We need to ensure downloadButton.parentNode exists.
+// It will exist if downloadButton was already part of downloadButtonContainer,
+// but downloadButtonContainer is appended to document.body later.
+// For now, this relies on the structure where downloadButton is created,
+// then newDownloadButton is made from it, and then newDownloadButton is appended.
+if (downloadButton.parentNode) {
+    downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
+}
+newDownloadButton.addEventListener('click', svgExportFunction);
+
+
+// Helper function to trigger file download
+function triggerDownload(filename, data, mimeType) {
+  const blob = new Blob([data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// The event listener for SVG export is now directly on newDownloadButton.
+// exportSvgLink is no longer used in the main DOM.
+
+// All Excel related functions (exportDiagramAsCsv, svgElementToPngDataUri, 
+// Excel constants, and Excel event listeners) are removed by deleting the large block.
+
+
+// Append elements
+// dropdownMenu.appendChild(exportSvgLink); // No longer needed
+// dropdownMenu.appendChild(exportExcelLink); // Removed
+downloadButtonContainer.appendChild(newDownloadButton); // Add the new button with updated listener
+// downloadButtonContainer.appendChild(dropdownMenu); // Dropdown menu is no longer added
+document.body.appendChild(downloadButtonContainer);
+
 // signal to VS Code that the webview is initialized
 vscode.postMessage({ type: 'ready' });

@@ -33,24 +33,37 @@ jobs:
         xvfb-run -a npm run all
         TEST_EXIT_CODE=$?
         set -e
-        node scripts/screenshot-report.js
+        node scripts/ui-test.js
         exit $TEST_EXIT_CODE
-    - name: Upload Test Results Screenshot
+    - name: Upload UI Screenshots
       if: always() && runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-screenshot
-        path: test-results.png
+        name: ui-screenshots
+        path: |
+          ui-default-en.png
+          ui-chinese.png
+          ui-japanese.png
+          ui-sidebar-custom-props.png
     - name: Comment on PR
       if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
       uses: actions/github-script@v6
       with:
         script: |
+          const fs = require('fs');
+          const path = require('path');
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'Automated tests completed. A screenshot of the results has been uploaded to the job artifacts named "test-results-screenshot".'
+            body: `Automated UI tests completed. The following screenshots have been uploaded to the job artifacts named "ui-screenshots":
+            - ui-default-en.png (English)
+            - ui-chinese.png (Chinese)
+            - ui-japanese.png (Japanese)
+            - ui-sidebar-custom-props.png (Sidebar & Custom Properties)
+
+            Please download the artifacts to view the results.`
           })
     - name: Execute tests (MacOS, Windows)
       run: npm run all

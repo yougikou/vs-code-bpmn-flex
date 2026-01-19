@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BPMN Editor UI Test</title>
+
+  <!-- Reset and VS Code styles -->
+  <style>
+    /* Mimic reset.css and vscode.css from media folder if needed,
+       but we mostly care about bpmn-editor styles */
+    body { margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; font-family: sans-serif; }
+    #canvas { flex: 1; height: 100%; }
+  </style>
+
+  <!-- Load the bundled CSS -->
+  <link rel="stylesheet" href="/out/client/bpmn-editor.css">
+
+  <script>
+    // Mock acquireVsCodeApi
+    window.acquireVsCodeApi = () => {
+      return {
+        postMessage: (msg) => {
+          console.log('Message posted to VS Code:', msg);
+          // We can intercept this in Puppeteer via console logs or expose a global array
+          if (!window.postedMessages) window.postedMessages = [];
+          window.postedMessages.push(msg);
+        },
+        getState: () => ({}),
+        setState: (state) => {}
+      };
+    };
+  </script>
+</head>
+<body>
+  <div id="canvas"></div>
+
+  <!-- Load the bundled JS -->
+  <script src="/out/client/bpmn-editor.js"></script>
+</body>
+</html>

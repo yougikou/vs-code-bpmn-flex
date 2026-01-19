@@ -56,6 +56,8 @@ export function extractProperties(bpmnElement, config) {
 
       // 处理嵌套属性访问
       for (let i = 0; i < pathParts.length; i++) {
+        if (!currentObj) break;
+
         const part = pathParts[i].replace('bpmn:', '');
 
         // 获取当前层级的属性

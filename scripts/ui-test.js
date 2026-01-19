@@ -182,7 +182,8 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
         { label: 'Name', xpath: 'name', type: 'attribute' },
         { label: 'Start Date', xpath: 'custom:startDate', type: 'date' },
         { label: 'Priority', xpath: 'custom:priority', type: 'number' },
-        { label: 'Is Active', xpath: 'custom:isActive', type: 'boolean' }
+        { label: 'Is Active', xpath: 'custom:isActive', type: 'boolean' },
+        { label: 'Nested Prop', xpath: 'custom:nested/custom:val', type: 'attribute' }
       ]
     };
 

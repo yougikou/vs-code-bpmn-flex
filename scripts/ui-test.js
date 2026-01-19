@@ -55,12 +55,12 @@ const server = http.createServer((req, res) => {
 });
 
 const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:custom="http://custom/ns" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0b6cm13</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_0zlv465" name="foo">
+    <bpmn:task id="Task_0zlv465" name="foo" custom:startDate="2023-01-01" custom:priority="5" custom:isActive="true">
       <bpmn:documentation>Original Documentation</bpmn:documentation>
       <bpmn:incoming>SequenceFlow_0b6cm13</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_17w8608</bpmn:outgoing>
@@ -179,7 +179,10 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     const customConfig = {
       common: [
         { label: 'Documentation', xpath: 'bpmn:documentation', type: 'elementText' },
-        { label: 'Name', xpath: 'name', type: 'attribute' }
+        { label: 'Name', xpath: 'name', type: 'attribute' },
+        { label: 'Start Date', xpath: 'custom:startDate', type: 'date' },
+        { label: 'Priority', xpath: 'custom:priority', type: 'number' },
+        { label: 'Is Active', xpath: 'custom:isActive', type: 'boolean' }
       ]
     };
 
@@ -219,6 +222,30 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
         el.dispatchEvent(new Event('change'));
     }, textareaSelector);
 
+    // Update Date
+    const dateInputSelector = '#custom-properties-content ul li:nth-child(3) input';
+    await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        el.value = '2023-12-31';
+        el.dispatchEvent(new Event('change'));
+    }, dateInputSelector);
+
+    // Update Number
+    const numInputSelector = '#custom-properties-content ul li:nth-child(4) input';
+    await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        el.value = '99';
+        el.dispatchEvent(new Event('change'));
+    }, numInputSelector);
+
+    // Update Boolean
+    const boolInputSelector = '#custom-properties-content ul li:nth-child(5) select';
+    await page.select(boolInputSelector, 'false');
+    await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        el.dispatchEvent(new Event('change'));
+    }, boolInputSelector);
+
     await new Promise(r => setTimeout(r, 500));
     await page.screenshot({ path: path.join(ROOT, 'ui-sidebar-edited.png') });
     console.log('Screenshot: ui-sidebar-edited.png');
@@ -241,12 +268,36 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
         await new Promise(r => setTimeout(r, 100));
     }
 
+    let success = true;
     if (xml.includes('Original Documentation Updated')) {
         console.log('SUCCESS: XML contains updated documentation.');
     } else {
         console.error('FAILURE: XML does not contain updated documentation.');
-        process.exit(1);
+        success = false;
     }
+
+    if (xml.includes('custom:startDate="2023-12-31"')) {
+         console.log('SUCCESS: XML contains updated date.');
+    } else {
+        console.error('FAILURE: XML does not contain updated date. Content:', xml);
+        success = false;
+    }
+
+    if (xml.includes('custom:priority="99"')) {
+         console.log('SUCCESS: XML contains updated priority.');
+    } else {
+        console.error('FAILURE: XML does not contain updated priority.');
+        success = false;
+    }
+
+    if (xml.includes('custom:isActive="false"')) {
+         console.log('SUCCESS: XML contains updated boolean.');
+    } else {
+        console.error('FAILURE: XML does not contain updated boolean.');
+        success = false;
+    }
+
+    if (!success) process.exit(1);
 
     await browser.close();
     server.close();

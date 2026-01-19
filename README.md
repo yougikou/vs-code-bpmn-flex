@@ -16,7 +16,8 @@ View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
 ## Feature Details
 1. Added Chinese, Japanese, English selector
 2. Added custom attribute, elements to side panel to show
-   1. Add below setting configuration:
+   1. Supported types: `attribute` (text input), `elementText` (textarea), `date`, `number`, `boolean` (select True/False).
+   2. Add below setting configuration:
     ```json
        "bpmn-flex.commonProperties": [
         {
@@ -28,6 +29,21 @@ View and edit BPMN diagrams in [VSCode](https://code.visualstudio.com/).
             "type": "elementText",
             "xpath": "bpmn:documentation",
             "label": "Documentation"
+        },
+        {
+            "type": "date",
+            "xpath": "custom:startDate",
+            "label": "Start Date"
+        },
+        {
+            "type": "number",
+            "xpath": "custom:priority",
+            "label": "Priority"
+        },
+        {
+            "type": "boolean",
+            "xpath": "custom:isActive",
+            "label": "Is Active"
         }
     ],
     "bpmn-flex.elementSpecificProperties": {

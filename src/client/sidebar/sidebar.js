@@ -79,12 +79,40 @@ export default class Sidebar {
       if (prop.propDef && prop.propDef.type === 'elementText') {
         input = document.createElement('textarea');
         input.rows = 4;
+      } else if (prop.propDef && prop.propDef.type === 'date') {
+        input = document.createElement('input');
+        input.type = 'date';
+      } else if (prop.propDef && prop.propDef.type === 'number') {
+        input = document.createElement('input');
+        input.type = 'number';
+      } else if (prop.propDef && prop.propDef.type === 'boolean') {
+        input = document.createElement('select');
+        const trueOpt = document.createElement('option');
+        trueOpt.text = 'True';
+        trueOpt.value = 'true';
+        const falseOpt = document.createElement('option');
+        falseOpt.text = 'False';
+        falseOpt.value = 'false';
+        input.add(trueOpt);
+        input.add(falseOpt);
       } else {
         input = document.createElement('input');
         input.type = 'text';
       }
 
-      input.value = prop.value;
+      if (prop.propDef && prop.propDef.type === 'boolean') {
+        if (prop.value === '1' || prop.value === '0') {
+          input.options[0].value = '1';
+          input.options[1].value = '0';
+          input.value = prop.value;
+        } else {
+          if (prop.value === 'true') input.value = 'true';
+          else if (prop.value === 'false') input.value = 'false';
+          else input.value = 'false';
+        }
+      } else {
+        input.value = prop.value;
+      }
       input.style.width = '100%';
       input.style.padding = '5px';
       input.style.boxSizing = 'border-box';

@@ -59,7 +59,13 @@ export function extractProperties(bpmnElement, config) {
         const part = pathParts[i].replace('bpmn:', '');
 
         // 获取当前层级的属性
-        currentObj = currentObj[part];
+        if (currentObj[part] !== undefined) {
+          currentObj = currentObj[part];
+        } else if (currentObj.$attrs && currentObj.$attrs[part] !== undefined) {
+          currentObj = currentObj.$attrs[part];
+        } else {
+          currentObj = undefined;
+        }
 
         // 中间路径处理：数组取第一个元素
         if (currentObj) {
@@ -73,6 +79,9 @@ export function extractProperties(bpmnElement, config) {
 
       switch (propDef.type) {
       case 'attribute':
+      case 'date':
+      case 'number':
+      case 'boolean':
         value = currentObj;
         break;
       case 'elementText':
@@ -111,7 +120,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
   // Helper to get simple property name from xpath part
   const getPropName = (part) => part.replace('bpmn:', '');
 
-  if (propDef.type === 'attribute') {
+  if (['attribute', 'date', 'number', 'boolean'].includes(propDef.type)) {
 
     // Traverse to the parent object of the attribute
     let currentObj = businessObject;

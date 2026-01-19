@@ -88,16 +88,94 @@ export function extractProperties(bpmnElement, config) {
         console.warn(`Unknown xpath type: ${propDef.type}`);
       }
 
-      if (value !== undefined && value !== null && value !== '') {
-        properties.push({ label: propDef.label, value: String(value) });
+      if (value !== undefined && value !== null) {
+        properties.push({ label: propDef.label, value: String(value), propDef });
       } else {
-        properties.push({ label: propDef.label, value: 'N/A' });
+        properties.push({ label: propDef.label, value: '', propDef });
       }
     } catch (e) {
       console.warn(`Error evaluating XPath "${propDef.xpath}" for element ${bpmnElement.id}:`, e);
-      properties.push({ label: propDef.label, value: 'Error evaluating' });
+      properties.push({ label: propDef.label, value: 'Error evaluating', propDef });
     }
   }
 
   return properties;
+}
+
+export function updateProperty(element, propDef, newValue, modeling, moddle) {
+  if (!element || !propDef || !modeling || !moddle) return;
+
+  const businessObject = element.businessObject;
+  const pathParts = propDef.xpath.split('/');
+
+  // Helper to get simple property name from xpath part
+  const getPropName = (part) => part.replace('bpmn:', '');
+
+  if (propDef.type === 'attribute') {
+
+    // Traverse to the parent object of the attribute
+    let currentObj = businessObject;
+    let propName = '';
+
+    for (let i = 0; i < pathParts.length; i++) {
+      const part = getPropName(pathParts[i]);
+
+      if (i === pathParts.length - 1) {
+        propName = part;
+      } else {
+
+        // Traverse down
+        if (!currentObj[part]) {
+
+          // If intermediate object missing, we can't update.
+          // In future we might support creation.
+          console.warn(`Cannot update property ${propDef.xpath}: intermediate path ${part} missing.`);
+          return;
+        }
+        currentObj = currentObj[part];
+        if (Array.isArray(currentObj)) {
+          currentObj = currentObj[0];
+        }
+      }
+    }
+
+    if (currentObj && propName) {
+      if (currentObj === businessObject) {
+        modeling.updateProperties(element, { [propName]: newValue });
+      } else {
+        modeling.updateModdleProperties(element, currentObj, { [propName]: newValue });
+      }
+    }
+
+  } else if (propDef.type === 'elementText') {
+
+    // For elementText (like documentation), we traverse to the element itself
+    // and update its 'text' property.
+
+    // Handle bpmn:documentation specifically for creation if missing
+    if (propDef.xpath === 'bpmn:documentation' && (!businessObject.documentation || businessObject.documentation.length === 0)) {
+      const newDoc = moddle.create('bpmn:Documentation', { text: newValue });
+      modeling.updateProperties(element, { documentation: [ newDoc ] });
+      return;
+    }
+
+    let currentObj = businessObject;
+    for (let i = 0; i < pathParts.length; i++) {
+      const part = getPropName(pathParts[i]);
+
+      if (!currentObj[part]) {
+        console.warn(`Cannot update property ${propDef.xpath}: path ${part} missing.`);
+        return;
+      }
+
+      currentObj = currentObj[part];
+      if (Array.isArray(currentObj)) {
+        currentObj = currentObj[0];
+      }
+    }
+
+    if (currentObj) {
+      modeling.updateModdleProperties(element, currentObj, { text: newValue });
+    }
+  }
 }

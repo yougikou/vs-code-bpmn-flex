@@ -48,9 +48,60 @@ export default class Sidebar {
     });
   }
 
-  updateCustomProperties(htmlContent) {
-    if (this.customPropertiesContent) {
-      this.customPropertiesContent.innerHTML = htmlContent;
+  updateCustomProperties(properties, onUpdate) {
+    if (!this.customPropertiesContent) {
+      return;
     }
+
+    // If string is passed (legacy/error message), render it directly
+    if (typeof properties === 'string') {
+      this.customPropertiesContent.innerHTML = properties;
+      return;
+    }
+
+    this.customPropertiesContent.innerHTML = '';
+    const list = document.createElement('ul');
+    list.style.listStyle = 'none';
+    list.style.padding = '0';
+
+    properties.forEach((prop, _index) => {
+      const item = document.createElement('li');
+      item.style.marginBottom = '10px';
+
+      const label = document.createElement('label');
+      label.textContent = prop.label;
+      label.style.display = 'block';
+      label.style.fontWeight = 'bold';
+      label.style.marginBottom = '5px';
+      item.appendChild(label);
+
+      let input;
+      if (prop.propDef && prop.propDef.type === 'elementText') {
+        input = document.createElement('textarea');
+        input.rows = 4;
+      } else {
+        input = document.createElement('input');
+        input.type = 'text';
+      }
+
+      input.value = prop.value;
+      input.style.width = '100%';
+      input.style.padding = '5px';
+      input.style.boxSizing = 'border-box';
+
+      // Attach change listener
+      if (onUpdate && prop.propDef) {
+        input.addEventListener('change', (e) => {
+          onUpdate(prop.propDef, e.target.value);
+        });
+      } else {
+        input.disabled = true;
+      }
+
+      item.appendChild(input);
+      list.appendChild(item);
+    });
+
+    this.customPropertiesContent.appendChild(list);
   }
 }

@@ -61,6 +61,7 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
       <bpmn:outgoing>SequenceFlow_0b6cm13</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:task id="Task_0zlv465" name="foo">
+      <bpmn:documentation>Original Documentation</bpmn:documentation>
       <bpmn:incoming>SequenceFlow_0b6cm13</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_17w8608</bpmn:outgoing>
     </bpmn:task>
@@ -120,8 +121,24 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 800 });
 
+    // Capture messages sent to VS Code
+    const sentMessages = [];
+    await page.exposeFunction('onPostMessage', msg => {
+        console.log('Intercepted message:', msg);
+        sentMessages.push(msg);
+    });
+
     console.log('Navigating to app...');
     await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle0' });
+
+    // Hook into the mock acquireVsCodeApi to redirect messages to our exposed function
+    await page.evaluate(() => {
+        const originalPostMessage = window.acquireVsCodeApi().postMessage;
+        window.acquireVsCodeApi().postMessage = (msg) => {
+             window.onPostMessage(msg); // Call puppeteer exposed function
+             if (window.postedMessages) window.postedMessages.push(msg);
+        };
+    });
 
     // 1. Initial Load (English default)
     console.log('Initializing BPMN...');
@@ -132,7 +149,6 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     // Wait for rendering
     await new Promise(r => setTimeout(r, 1000));
     await page.screenshot({ path: path.join(ROOT, 'ui-default-en.png') });
-    console.log('Screenshot: ui-default-en.png');
 
     // 2. Switch to Chinese
     console.log('Switching to Chinese...');
@@ -144,7 +160,6 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     });
     await new Promise(r => setTimeout(r, 1000));
     await page.screenshot({ path: path.join(ROOT, 'ui-chinese.png') });
-    console.log('Screenshot: ui-chinese.png');
 
     // 3. Switch to Japanese
     console.log('Switching to Japanese...');
@@ -156,7 +171,6 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     });
     await new Promise(r => setTimeout(r, 1000));
     await page.screenshot({ path: path.join(ROOT, 'ui-japanese.png') });
-    console.log('Screenshot: ui-japanese.png');
 
     // 4. Sidebar & Custom Properties
     console.log('Testing Sidebar & Custom Properties...');
@@ -164,48 +178,75 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     // Inject configuration
     const customConfig = {
       common: [
-        { label: 'My Common Prop', xpath: 'bpmn:documentation' } // Using documentation as example
-      ],
-      elementSpecific: {
-        'bpmn:Task': [
-           { label: 'Task Type', xpath: 'custom:taskType' }
-        ]
-      }
+        { label: 'Documentation', xpath: 'bpmn:documentation', type: 'elementText' },
+        { label: 'Name', xpath: 'name', type: 'attribute' }
+      ]
     };
 
     await page.evaluate((config) => {
       window.postMessage({ type: 'customConfig', body: config }, '*');
     }, customConfig);
 
-    // Select the Task (Task_0zlv465)
-    // We can do this by interacting with the modeler instance if we expose it, or via clicking.
-    // In bpmn-js, elements have data-element-id attributes in the SVG.
-
-    // Wait for SVG elements
+    // Select the Task
     await page.waitForSelector('[data-element-id="Task_0zlv465"]');
-
-    // Click the task
     await page.click('[data-element-id="Task_0zlv465"]');
-    await new Promise(r => setTimeout(r, 500)); // wait for selection event
+    await new Promise(r => setTimeout(r, 500));
 
     // Expand sidebar
-    // Click #sidebar-toggle or #sidebar-expand
-    // Check which one is visible. Initially sidebar is likely collapsed.
-    // The CSS says: #sidebar.collapsed { width: 40px; }
-    // #sidebar-expand is inside sidebar? No, #sidebar-toggle is at bottom left, #sidebar-expand is top right.
-
-    // Let's click #sidebar-toggle
     try {
         await page.click('#sidebar-toggle');
     } catch (e) {
-        console.log('Could not click #sidebar-toggle, maybe already expanded or different ID? Trying #sidebar-expand');
         await page.click('#sidebar-expand');
     }
 
-    await new Promise(r => setTimeout(r, 1000)); // wait for animation
-
+    await new Promise(r => setTimeout(r, 1000));
     await page.screenshot({ path: path.join(ROOT, 'ui-sidebar-custom-props.png') });
     console.log('Screenshot: ui-sidebar-custom-props.png');
+
+    // 5. Test Editing
+    console.log('Testing Editing...');
+
+    // Find the textarea for Documentation
+    // It should contain "Original Documentation"
+    const textareaSelector = '#custom-properties-content textarea';
+    await page.waitForSelector(textareaSelector);
+
+    // Type new value
+    await page.type(textareaSelector, ' Updated'); // "Original Documentation Updated"
+    // Trigger change event just in case type doesn't trigger it immediately on blur
+    await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        el.dispatchEvent(new Event('change'));
+    }, textareaSelector);
+
+    await new Promise(r => setTimeout(r, 500));
+    await page.screenshot({ path: path.join(ROOT, 'ui-sidebar-edited.png') });
+    console.log('Screenshot: ui-sidebar-edited.png');
+
+    // Check if XML updated
+    // Request Text
+    await page.evaluate(() => {
+        window.postMessage({ type: 'getText', requestId: 123 }, '*');
+    });
+
+    // Wait for response in sentMessages
+    // Simple polling
+    let xml = '';
+    for(let i=0; i<20; i++) {
+        const response = sentMessages.find(m => m.type === 'response' && m.requestId === 123);
+        if (response) {
+            xml = response.body;
+            break;
+        }
+        await new Promise(r => setTimeout(r, 100));
+    }
+
+    if (xml.includes('Original Documentation Updated')) {
+        console.log('SUCCESS: XML contains updated documentation.');
+    } else {
+        console.error('FAILURE: XML does not contain updated documentation.');
+        process.exit(1);
+    }
 
     await browser.close();
     server.close();

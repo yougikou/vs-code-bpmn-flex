@@ -18,8 +18,7 @@
 
   <script>
     // Mock acquireVsCodeApi
-    window.acquireVsCodeApi = () => {
-      return {
+    const vscodeApi = {
         postMessage: (msg) => {
           console.log('Message posted to VS Code:', msg);
           // We can intercept this in Puppeteer via console logs or expose a global array
@@ -28,8 +27,8 @@
         },
         getState: () => ({}),
         setState: (state) => {}
-      };
     };
+    window.acquireVsCodeApi = () => vscodeApi;
   </script>
 </head>
 <body>

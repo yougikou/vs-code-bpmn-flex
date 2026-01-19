@@ -35,6 +35,12 @@ describe('extension', function() {
 
   describe('basic', () => {
 
+    it('should have custom properties configuration', () => {
+      const config = vscode.workspace.getConfiguration('bpmn-flex');
+      expect(config.has('commonProperties')).to.be.true;
+      expect(config.has('elementSpecificProperties')).to.be.true;
+    });
+
     it('should open file', async () => {
 
       // when

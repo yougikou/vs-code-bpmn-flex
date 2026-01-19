@@ -5,6 +5,10 @@ on: [ push, pull_request ]
 jobs:
   build:
 
+    permissions:
+      contents: read
+      pull-requests: write
+
     strategy:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
@@ -23,8 +27,31 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Execute tests (Linux)
-      run: xvfb-run -a npm run all
       if: runner.os == 'Linux'
+      run: |
+        set +e
+        xvfb-run -a npm run all
+        TEST_EXIT_CODE=$?
+        set -e
+        node scripts/screenshot-report.js
+        exit $TEST_EXIT_CODE
+    - name: Upload Test Results Screenshot
+      if: always() && runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-screenshot
+        path: test-results.png
+    - name: Comment on PR
+      if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: 'Automated tests completed. A screenshot of the results has been uploaded to the job artifacts named "test-results-screenshot".'
+          })
     - name: Execute tests (MacOS, Windows)
       run: npm run all
       if: runner.os != 'Linux'

@@ -180,7 +180,9 @@
     "eslint-plugin-bpmn-io": "^2.0.2",
     "glob": "^11.0.0",
     "mocha": "^10.8.2",
+    "mochawesome": "^7.1.4",
     "npm-run-all2": "^8.0.0",
+    "puppeteer": "^24.35.0",
     "rollup": "^4.27.0",
     "rollup-plugin-css-only": "^4.5.2",
     "shelljs": "^0.8.5",
@@ -200,6 +202,9 @@
     "xpath": "^0.0.34"
   },
   "bundledDependencies": [
+    "tslib"
+  ],
+  "bundleDependencies": [
     "tslib"
   ]
 }

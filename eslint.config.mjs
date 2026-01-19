@@ -20,7 +20,8 @@ const files = {
   ignored: [
     '.vscode',
     '.vscode-test',
-    'out'
+    'out',
+    'scripts'
   ]
 };
 

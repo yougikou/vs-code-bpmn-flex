@@ -16,3 +16,5 @@ renovate.json
 rollup.config.js
 tsconfig.json
 *.vsix
+scripts
+*.png

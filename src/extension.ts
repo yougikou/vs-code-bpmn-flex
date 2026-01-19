@@ -39,6 +39,7 @@ async function loadCustomPropertiesConfig(_context: vscode.ExtensionContext) {
       message = `Error loading BPMN.flex custom properties from VS Code settings: ${error.message}`;
     }
     vscode.window.showErrorMessage(message);
+
     // Default to empty configuration in case of any error
     customPropertiesConfig = {
       common: [],

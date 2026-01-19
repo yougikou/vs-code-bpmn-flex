@@ -4,3 +4,9 @@ node_modules
 *.vsix
 
 .DS_Store
+ui-default-en.png
+ui-chinese.png
+ui-japanese.png
+ui-sidebar-custom-props.png
+ui-sidebar-edited.png
+test-results.png

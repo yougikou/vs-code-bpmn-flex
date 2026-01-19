@@ -7,7 +7,14 @@ export async function run() {
   // Create the mocha test
   const mocha = new Mocha({
     ui: 'tdd',
-    color: true
+    color: true,
+    reporter: 'mochawesome',
+    reporterOptions: {
+      reportDir: path.join(path.resolve(__dirname, '..', '..', '..'), 'out', 'test', 'reports'),
+      reportFilename: 'test-results',
+      html: true,
+      json: false
+    }
   });
 
   const testsRoot = path.resolve(__dirname, '..');

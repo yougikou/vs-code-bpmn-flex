@@ -2,6 +2,15 @@
 
 All notable changes to the [bpmn.flex vs-code extension](https://github.com/yougikou/vs-code-bpmn-flex) will be documented here. 
 
+## 0.19.0 (2026-01-20)
+
+## What's Changed
+* feat: consolidate release workflows to avoid duplication by @yougikou in https://github.com/yougikou/vs-code-bpmn-flex/pull/10
+* Add Date, Number, and Boolean components to BPMN Editor properties by @google-labs-jules[bot] in https://github.com/yougikou/vs-code-bpmn-flex/pull/11
+
+
+**Full Changelog**: https://github.com/yougikou/vs-code-bpmn-flex/compare/v0.18.1...v0.19.0
+
 ## 0.18.1 (2026-01-19)
 
 ## What's Changed

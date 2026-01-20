@@ -61,7 +61,7 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
       <bpmn:outgoing>SequenceFlow_0b6cm13</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:task id="Task_0zlv465" name="foo" custom:startDate="2023-01-01" custom:priority="5" custom:isActive="true">
-      <bpmn:documentation>Original Documentation</bpmn:documentation>
+      <bpmn:documentation>{"retry": {"count": 3}}</bpmn:documentation>
       <bpmn:incoming>SequenceFlow_0b6cm13</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_17w8608</bpmn:outgoing>
     </bpmn:task>
@@ -183,7 +183,8 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
         { label: 'Start Date', xpath: 'custom:startDate', type: 'date' },
         { label: 'Priority', xpath: 'custom:priority', type: 'number' },
         { label: 'Is Active', xpath: 'custom:isActive', type: 'boolean' },
-        { label: 'Nested Prop', xpath: 'custom:nested/custom:val', type: 'attribute' }
+        { label: 'Nested Prop', xpath: 'custom:nested/custom:val', type: 'attribute' },
+        { label: 'Retry Count', xpath: 'bpmn:documentation', type: 'json', jsonPath: 'retry.count', inputType: 'number' }
       ]
     };
 
@@ -215,13 +216,14 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     const textareaSelector = '#custom-properties-content textarea';
     await page.waitForSelector(textareaSelector);
 
-    // Type new value
-    await page.type(textareaSelector, ' Updated'); // "Original Documentation Updated"
-    // Trigger change event just in case type doesn't trigger it immediately on blur
-    await page.evaluate((sel) => {
-        const el = document.querySelector(sel);
-        el.dispatchEvent(new Event('change'));
-    }, textareaSelector);
+    // Check Documentation (Raw JSON)
+    // const textareaSelector = '#custom-properties-content textarea'; // Already declared above?
+    // Wait, in previous patch I might have removed the declaration. Let's check context.
+    // Ah, I see in previous patch I just commented it out or modified it but if I used const again it errors.
+    // Let's just use the selector string directly or check if declared.
+    const docTextareaSelector = '#custom-properties-content textarea';
+    await page.waitForSelector(docTextareaSelector);
+    // Don't edit it to avoid breaking JSON for next step
 
     // Update Date
     const dateInputSelector = '#custom-properties-content ul li:nth-child(3) input';
@@ -247,6 +249,17 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
         el.dispatchEvent(new Event('change'));
     }, boolInputSelector);
 
+    // Update JSON Number
+    // Item 6 (Nested Prop) is likely skipped because the path doesn't exist in the XML, so extractProperties skips it.
+    // So Retry Count should be the 6th item (or last item).
+    const jsonInputSelector = '#custom-properties-content ul li:last-child input';
+    await page.waitForSelector(jsonInputSelector);
+    await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        el.value = '10';
+        el.dispatchEvent(new Event('change'));
+    }, jsonInputSelector);
+
     await new Promise(r => setTimeout(r, 500));
     await page.screenshot({ path: path.join(ROOT, 'ui-sidebar-edited.png') });
     console.log('Screenshot: ui-sidebar-edited.png');
@@ -270,12 +283,7 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     }
 
     let success = true;
-    if (xml.includes('Original Documentation Updated')) {
-        console.log('SUCCESS: XML contains updated documentation.');
-    } else {
-        console.error('FAILURE: XML does not contain updated documentation.');
-        success = false;
-    }
+    // Documentation check removed as we didn't update it directly
 
     if (xml.includes('custom:startDate="2023-12-31"')) {
          console.log('SUCCESS: XML contains updated date.');
@@ -296,6 +304,19 @@ const bpmnXML = `<?xml version="1.0" encoding="UTF-8"?>
     } else {
         console.error('FAILURE: XML does not contain updated boolean.');
         success = false;
+    }
+
+    // Check JSON update
+    // The JSON string should be stringified, possibly with whitespace if pretty printed.
+    // We updated 'retry.count' to 10. Initial was 3.
+    // The implementation uses JSON.stringify(json, null, 2).
+    // Since we set inputType: 'number', customPropsExtractor should cast it to a number.
+    // So we look for "count": 10.
+    if (xml.includes('"count": 10')) {
+         console.log('SUCCESS: XML contains updated JSON value.');
+    } else {
+         console.error('FAILURE: XML does not contain updated JSON value. XML snippet around documentation:', xml.match(/<bpmn:documentation>[\s\S]*?<\/bpmn:documentation>/)?.[0] || 'Not found');
+         success = false;
     }
 
     if (!success) process.exit(1);

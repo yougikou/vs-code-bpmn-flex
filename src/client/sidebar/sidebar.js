@@ -85,7 +85,7 @@ export default class Sidebar {
       } else if (prop.propDef && prop.propDef.type === 'number') {
         input = document.createElement('input');
         input.type = 'number';
-      } else if (prop.propDef && prop.propDef.type === 'boolean') {
+      } else if (prop.propDef && (prop.propDef.type === 'boolean' || (prop.propDef.type === 'json' && prop.propDef.inputType === 'boolean'))) {
         input = document.createElement('select');
         const trueOpt = document.createElement('option');
         trueOpt.text = 'True';
@@ -95,19 +95,33 @@ export default class Sidebar {
         falseOpt.value = 'false';
         input.add(trueOpt);
         input.add(falseOpt);
+      } else if (prop.propDef && prop.propDef.type === 'json' && prop.propDef.inputType === 'number') {
+        input = document.createElement('input');
+        input.type = 'number';
+      } else if (prop.propDef && prop.propDef.type === 'json' && prop.propDef.inputType === 'date') {
+        input = document.createElement('input');
+        input.type = 'date';
       } else {
         input = document.createElement('input');
         input.type = 'text';
       }
 
-      if (prop.propDef && prop.propDef.type === 'boolean') {
+      if (prop.propDef && (prop.propDef.type === 'boolean' || (prop.propDef.type === 'json' && prop.propDef.inputType === 'boolean'))) {
+        // For simple boolean type, we try to preserve 0/1 if present.
+        // For JSON boolean, typically it's stored as boolean primitive in JSON, but here everything is stringified for sidebar.
+        // We will assume string 'true'/'false' for JSON boolean updates via this simple editor unless we do type casting.
+        // For now, consistent behavior with the 'boolean' type logic:
         if (prop.value === '1' || prop.value === '0') {
           input.options[0].value = '1';
           input.options[1].value = '0';
           input.value = prop.value;
         } else {
-          if (prop.value === 'true') input.value = 'true';
-          else if (prop.value === 'false') input.value = 'false';
+          // Reset options to true/false in case reused
+          input.options[0].value = 'true';
+          input.options[1].value = 'false';
+
+          if (String(prop.value) === 'true') input.value = 'true';
+          else if (String(prop.value) === 'false') input.value = 'false';
           else input.value = 'false';
         }
       } else {

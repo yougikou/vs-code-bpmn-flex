@@ -107,6 +107,7 @@ export default class Sidebar {
       }
 
       if (prop.propDef && (prop.propDef.type === 'boolean' || (prop.propDef.type === 'json' && prop.propDef.inputType === 'boolean'))) {
+
         // For simple boolean type, we try to preserve 0/1 if present.
         // For JSON boolean, typically it's stored as boolean primitive in JSON, but here everything is stringified for sidebar.
         // We will assume string 'true'/'false' for JSON boolean updates via this simple editor unless we do type casting.
@@ -116,6 +117,7 @@ export default class Sidebar {
           input.options[1].value = '0';
           input.value = prop.value;
         } else {
+
           // Reset options to true/false in case reused
           input.options[0].value = 'true';
           input.options[1].value = 'false';

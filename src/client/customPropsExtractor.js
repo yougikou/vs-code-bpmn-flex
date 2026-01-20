@@ -137,7 +137,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
   // Helper to get simple property name from xpath part
   const getPropName = (part) => part.replace('bpmn:', '');
 
-  if (['attribute', 'date', 'number', 'boolean'].includes(propDef.type)) {
+  if ([ 'attribute', 'date', 'number', 'boolean' ].includes(propDef.type)) {
 
     // Traverse to the parent object of the attribute
     let currentObj = businessObject;

@@ -56,10 +56,18 @@ export function extractProperties(bpmnElement, config) {
 
       // 处理嵌套属性访问
       for (let i = 0; i < pathParts.length; i++) {
+        if (!currentObj) break;
+
         const part = pathParts[i].replace('bpmn:', '');
 
         // 获取当前层级的属性
-        currentObj = currentObj[part];
+        if (currentObj[part] !== undefined) {
+          currentObj = currentObj[part];
+        } else if (currentObj.$attrs && currentObj.$attrs[part] !== undefined) {
+          currentObj = currentObj.$attrs[part];
+        } else {
+          currentObj = undefined;
+        }
 
         // 中间路径处理：数组取第一个元素
         if (currentObj) {
@@ -73,11 +81,29 @@ export function extractProperties(bpmnElement, config) {
 
       switch (propDef.type) {
       case 'attribute':
+      case 'date':
+      case 'number':
+      case 'boolean':
         value = currentObj;
         break;
       case 'elementText':
         value = currentObj.text;
         break;
+      case 'json': {
+        const text = currentObj.text || '{}';
+        try {
+          const json = JSON.parse(text);
+          if (propDef.jsonPath) {
+            value = getDeep(json, propDef.jsonPath);
+          } else {
+            value = text;
+          }
+        } catch (e) {
+          console.warn('Invalid JSON in element text', e);
+          value = '';
+        }
+        break;
+      }
       case 'fullXPath':
 
         // TODO: Implement full XPath evaluation
@@ -111,7 +137,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
   // Helper to get simple property name from xpath part
   const getPropName = (part) => part.replace('bpmn:', '');
 
-  if (propDef.type === 'attribute') {
+  if ([ 'attribute', 'date', 'number', 'boolean' ].includes(propDef.type)) {
 
     // Traverse to the parent object of the attribute
     let currentObj = businessObject;
@@ -177,5 +203,56 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
     if (currentObj) {
       modeling.updateModdleProperties(element, currentObj, { text: newValue });
     }
+  } else if (propDef.type === 'json') {
+    let currentObj = businessObject;
+    for (let i = 0; i < pathParts.length; i++) {
+      const part = getPropName(pathParts[i]);
+      if (!currentObj[part]) {
+        console.warn(`Cannot update property ${propDef.xpath}: path ${part} missing.`);
+        return;
+      }
+      currentObj = currentObj[part];
+      if (Array.isArray(currentObj)) {
+        currentObj = currentObj[0];
+      }
+    }
+
+    if (currentObj) {
+      let json = {};
+      try {
+        json = JSON.parse(currentObj.text || '{}');
+      } catch (e) {
+        console.warn('Invalid JSON, resetting to empty object', e);
+      }
+
+      if (propDef.jsonPath) {
+        let valueToStore = newValue;
+        if (propDef.inputType === 'number') {
+          valueToStore = Number(newValue);
+        } else if (propDef.inputType === 'boolean') {
+          valueToStore = (newValue === 'true' || newValue === '1' || newValue === true);
+        }
+        setDeep(json, propDef.jsonPath, valueToStore);
+      }
+
+      modeling.updateModdleProperties(element, currentObj, { text: JSON.stringify(json, null, 2) });
+    }
   }
+}
+
+function getDeep(obj, path) {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
+function setDeep(obj, path, value) {
+  const parts = path.split('.');
+  let current = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (!current[part] || typeof current[part] !== 'object') {
+      current[part] = {};
+    }
+    current = current[part];
+  }
+  current[parts[parts.length - 1]] = value;
 }

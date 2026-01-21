@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import url from '@rollup/plugin-url';
 import typescript from '@rollup/plugin-typescript';
+import replace from '@rollup/plugin-replace';
 
 import css from 'rollup-plugin-css-only';
 
@@ -9,7 +10,7 @@ export default [
 
   // client
   {
-    input: 'src/client/bpmn-editor.js',
+    input: 'src/client/bpmn-editor.tsx',
     output: {
       sourcemap: true,
       format: 'iife',
@@ -23,8 +24,17 @@ export default [
 
       css({ output: 'bpmn-editor.css' }),
 
+      typescript({
+        tsconfig: 'src/client/tsconfig.json'
+      }),
+
       resolve(),
-      commonjs()
+      commonjs(),
+
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        preventAssignment: true
+      })
     ],
     watch: {
       clearScreen: false

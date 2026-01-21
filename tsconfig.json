@@ -10,7 +10,8 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react"
   },
-  "exclude": [ "node_modules", ".vscode-test" ]
+  "exclude": [ "node_modules", ".vscode-test", "src/client" ]
 }

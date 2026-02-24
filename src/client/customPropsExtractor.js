@@ -50,7 +50,11 @@ export function extractProperties(bpmnElement, config) {
       // Dynamic XPath evaluation based on config type
       let pathParts, currentObj;
 
-      pathParts = propDef.xpath.split('/');
+      if (!propDef._cachedPathParts) {
+        propDef._cachedPathParts = propDef.xpath.split('/').map(part => part.replace('bpmn:', ''));
+      }
+      pathParts = propDef._cachedPathParts;
+
       currentObj = businessObject;
       if (!currentObj) continue;
 
@@ -58,7 +62,7 @@ export function extractProperties(bpmnElement, config) {
       for (let i = 0; i < pathParts.length; i++) {
         if (!currentObj) break;
 
-        const part = pathParts[i].replace('bpmn:', '');
+        const part = pathParts[i];
 
         // 获取当前层级的属性
         if (currentObj[part] !== undefined) {
@@ -94,7 +98,10 @@ export function extractProperties(bpmnElement, config) {
         try {
           const json = JSON.parse(text);
           if (propDef.jsonPath) {
-            value = getDeep(json, propDef.jsonPath);
+            if (!propDef._cachedJsonPathParts) {
+              propDef._cachedJsonPathParts = propDef.jsonPath.split('.');
+            }
+            value = getDeep(json, propDef._cachedJsonPathParts);
           } else {
             value = text;
           }
@@ -132,10 +139,11 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
   if (!element || !propDef || !modeling || !moddle) return;
 
   const businessObject = element.businessObject;
-  const pathParts = propDef.xpath.split('/');
 
-  // Helper to get simple property name from xpath part
-  const getPropName = (part) => part.replace('bpmn:', '');
+  if (!propDef._cachedPathParts) {
+    propDef._cachedPathParts = propDef.xpath.split('/').map(part => part.replace('bpmn:', ''));
+  }
+  const pathParts = propDef._cachedPathParts;
 
   if ([ 'attribute', 'date', 'number', 'boolean' ].includes(propDef.type)) {
 
@@ -144,7 +152,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
     let propName = '';
 
     for (let i = 0; i < pathParts.length; i++) {
-      const part = getPropName(pathParts[i]);
+      const part = pathParts[i];
 
       if (i === pathParts.length - 1) {
         propName = part;
@@ -187,7 +195,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
 
     let currentObj = businessObject;
     for (let i = 0; i < pathParts.length; i++) {
-      const part = getPropName(pathParts[i]);
+      const part = pathParts[i];
 
       if (!currentObj[part]) {
         console.warn(`Cannot update property ${propDef.xpath}: path ${part} missing.`);
@@ -206,7 +214,7 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
   } else if (propDef.type === 'json') {
     let currentObj = businessObject;
     for (let i = 0; i < pathParts.length; i++) {
-      const part = getPropName(pathParts[i]);
+      const part = pathParts[i];
       if (!currentObj[part]) {
         console.warn(`Cannot update property ${propDef.xpath}: path ${part} missing.`);
         return;
@@ -232,7 +240,10 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
         } else if (propDef.inputType === 'boolean') {
           valueToStore = (newValue === 'true' || newValue === '1' || newValue === true);
         }
-        setDeep(json, propDef.jsonPath, valueToStore);
+        if (!propDef._cachedJsonPathParts) {
+          propDef._cachedJsonPathParts = propDef.jsonPath.split('.');
+        }
+        setDeep(json, propDef._cachedJsonPathParts, valueToStore);
       }
 
       modeling.updateModdleProperties(element, currentObj, { text: JSON.stringify(json, null, 2) });
@@ -241,11 +252,12 @@ export function updateProperty(element, propDef, newValue, modeling, moddle) {
 }
 
 function getDeep(obj, path) {
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  const parts = Array.isArray(path) ? path : path.split('.');
+  return parts.reduce((acc, part) => acc && acc[part], obj);
 }
 
 function setDeep(obj, path, value) {
-  const parts = path.split('.');
+  const parts = Array.isArray(path) ? path : path.split('.');
   let current = obj;
   for (let i = 0; i < parts.length - 1; i++) {
     const part = parts[i];
